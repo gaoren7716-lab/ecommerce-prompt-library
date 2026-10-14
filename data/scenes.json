@@ -1,0 +1,20 @@
+{
+  "dim": "scene",
+  "zh": "背景场景",
+  "who": "随 form + style 定（派生位）",
+  "decides": "产品摆在什么世界里",
+  "items": [
+    { "id": "SC-01", "zh": "纯白影棚", "prompt": "pure white seamless studio background" },
+    { "id": "SC-02", "zh": "纯色渐变", "prompt": "smooth single-color gradient backdrop" },
+    { "id": "SC-03", "zh": "大理石台面", "prompt": "white marble countertop surface, elegant stone texture" },
+    { "id": "SC-04", "zh": "木纹桌面", "prompt": "natural wood table surface, warm grain texture" },
+    { "id": "SC-05", "zh": "浴室水汽", "prompt": "bright bathroom scene, soft steam and water droplets on glass" },
+    { "id": "SC-06", "zh": "厨房晨光", "prompt": "sunlit kitchen morning scene, fresh airy atmosphere" },
+    { "id": "SC-07", "zh": "卧室柔光", "prompt": "cozy bedroom scene, soft morning light through sheer curtains" },
+    { "id": "SC-08", "zh": "户外自然", "prompt": "outdoor natural environment, greenery bokeh background" },
+    { "id": "SC-09", "zh": "办公桌面", "prompt": "modern minimalist desk workspace" },
+    { "id": "SC-10", "zh": "节日布景", "prompt": "festive seasonal backdrop with holiday props" },
+    { "id": "SC-11", "zh": "赛博夜景", "prompt": "cyberpunk night city vibe, neon glow reflections on wet surfaces" },
+    { "id": "SC-12", "zh": "丝绸绸缎", "prompt": "flowing silk fabric background with soft sculptural folds" }
+  ]
+}

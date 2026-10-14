@@ -1,0 +1,22 @@
+{
+  "dim": "category",
+  "zh": "产品品类（行业库）",
+  "who": "你（卖什么）",
+  "decides": "产品长什么样、质感关键词是什么——画面主体词。rules 是该行业的视觉规范：不可变特征 / 推荐拍法 / AI 常见错误 / 合规注意",
+  "items": [
+    { "id": "CT-01", "zh": "美妆护肤", "prompt": "skincare cosmetic product, glass serum bottle with dropper, glossy reflective surfaces, cream texture swatch nearby", "note": "质感词：玻璃反光、膏体涂抹痕", "rules": "不可变：瓶形、标签文字、膏体颜色。推荐：微距 + 柔光 + 浅色背景。", "aiTrap": "标签文字乱码、膏体颜色跑偏、瓶身透视变形", "compliance": "功效表述需有事实依据，禁绝对化用语（最/第一/根治）" },
+    { "id": "CT-02", "zh": "服饰穿搭", "prompt": "fashion apparel product, fabric with visible weave texture and natural drape, clean garment presentation", "note": "垂坠感与织纹是关键", "rules": "不可变：版型剪裁、印花图案、颜色。推荐：全身/半身模特 + 自然光 + 真实上身体。", "aiTrap": "纽扣错位、袖长不对称、织物纹理融成糊", "compliance": "模特展示尺码需标注，避免误导性瘦身" },
+    { "id": "CT-03", "zh": "数码 3C", "prompt": "consumer electronics product, sleek matte or brushed-metal finish, precise edges, subtle LED accent glow", "note": "精密感、哑光或金属质感", "rules": "不可变：接口位置、按键布局、屏幕比例。推荐：45° 立体角 + 硬光/渐变光 + 深色背景。", "aiTrap": "接口凭空增多、按键排布错乱、屏幕内容乱码", "compliance": "性能参数需与官方一致，认证标志不得伪造" },
+    { "id": "CT-04", "zh": "食品饮料", "prompt": "food and beverage product, appetizing freshness, fresh ingredients scattered around, moisture droplets on the surface", "note": "水珠+原料散摆是食欲开关", "rules": "不可变：包装形态、品牌色。推荐：45°/俯拍 + 自然窗光 + 原料散摆。", "aiTrap": "食物断面不合理、包装文字融化变形、食材比例失真", "compliance": "不得暗示医疗功效；成分表述需与配料表一致" },
+    { "id": "CT-05", "zh": "家居日用", "prompt": "home goods product, cozy domestic context, warm material textures of wood fabric and ceramic", "note": "要住进去的暖感", "rules": "不可变：结构尺寸、材质组合。推荐：场景图 + 自然光 + 尺寸参照物。", "aiTrap": "透视关系错乱、家具比例失真、接缝处融合", "compliance": "材质表述需真实（实木/板式区分）" },
+    { "id": "CT-06", "zh": "母婴用品", "prompt": "baby care product, soft pastel tones, rounded safe edges, spotless hygienic presentation", "note": "安全感：圆润、无锐角、洁净", "rules": "不可变：安全结构、材质说明。推荐：纯净背景 + 柔光 + 妈妈手部/婴儿局部（不宜直出婴儿正脸）。", "aiTrap": "婴儿面部畸形、结构安全细节错误", "compliance": "婴幼儿相关宣称受严格监管，禁治疗/预防疾病表述" },
+    { "id": "CT-07", "zh": "运动户外", "prompt": "sports and outdoor gear product, dynamic energetic composition, durable technical materials, sweat and motion cues", "note": "动势与机能材质", "rules": "不可变：结构功能、尺码体系。推荐：使用中抓拍 + 硬光/自然光 + 真实环境。", "aiTrap": "运动姿态违反人体工学、装备佩戴方式错误", "compliance": "防护类产品（头盔/绳索）不得暗示超出认证的保护能力" },
+    { "id": "CT-08", "zh": "珠宝配饰", "prompt": "fine jewelry product, polished precious metal and gemstone sparkle, dark velvet display surface, precise prong details", "note": "切面火彩是灵魂", "rules": "不可变：主石切工、镶嵌结构、金属成色。推荐：微距 + 顶光聚焦 + 深色丝绒。", "aiTrap": "镶嵌结构错误（宝石悬浮）、金属反光溢出成脏斑", "compliance": "材质表述需准确（18K/铂金/培育钻区分）" },
+    { "id": "CT-09", "zh": "文具文创", "prompt": "stationery product, neat flat arrangement, tactile paper textures, tidy desk context", "note": "排列整齐感与纸张肌理", "rules": "不可变：印刷图案、结构。推荐：平铺俯拍 + 柔光 + 整齐排列。", "aiTrap": "印刷图案扭曲、纸张边缘畸形" },
+    { "id": "CT-10", "zh": "宠物用品", "prompt": "pet supply product, playful pet-friendly context, soft fur texture accents nearby", "note": "可带毛孩子入镜", "rules": "不可变：结构尺寸。推荐：宠物使用互动 + 自然光 + 生活场景。", "aiTrap": "动物肢体畸形、眼神呆滞", "compliance": "食品类需符合宠物饲料标签规范" },
+    { "id": "CT-11", "zh": "保健滋补", "prompt": "health supplement product, capsule or amber bottle presentation, botanical raw ingredients, trust-building clean look", "note": "信任感 > 花哨", "rules": "不可变：瓶形、批文标识。推荐：洁净背景 + 柔光 + 成分实拍。", "aiTrap": "瓶身文字乱码、剂量标识错误", "compliance": "保健食品须有蓝帽子标识才可宣称功能，禁疾病治疗表述" },
+    { "id": "CT-12", "zh": "礼盒包装", "prompt": "premium gift box product packaging, ribbon and unboxing appeal, layered presentation with lid half open", "note": "开箱仪式感", "rules": "不可变：盒型结构、烫印工艺。推荐：45° + 柔光 + 丝带飘带。", "aiTrap": "盒盖开合结构不合理、丝带穿插关系错误" },
+    { "id": "CT-13", "zh": "汽车用品", "prompt": "automotive accessory product, car interior or exterior context, durable functional materials, precise fitment", "note": "适配精度是信任点", "rules": "不可变：车型适配结构、安装接口。推荐：车内场景 + 硬光 + 安装效果。", "aiTrap": "车内空间透视失真、接口与车型不符", "compliance": "改装类注意法规边界表述" },
+    { "id": "CT-14", "zh": "五金园艺", "prompt": "hardware tool or garden supply product, rugged practical materials, workshop or garden green context", "note": "结实耐用感", "rules": "不可变：工具结构、安全防护件。推荐：使用中抓拍 + 硬光 + 工作台/花园场景。", "aiTrap": "工具机械结构错误、刃口方向不合理", "compliance": "安全防护说明不得省略" }
+  ]
+}

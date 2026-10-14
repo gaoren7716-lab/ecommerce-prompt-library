@@ -1,0 +1,960 @@
+{
+  "dim": "case",
+  "zh": "验证案例",
+  "who": "框架的证据",
+  "decides": "刻意覆盖不同分支，跑 check_cases 看引用完整性与覆盖矩阵",
+  "items": [
+    {
+      "id": "CS-01",
+      "zh": "美妆精华 Amazon 主图",
+      "recipe": {
+        "form": "FO-01",
+        "category": "CT-01",
+        "shot": "SH-01",
+        "scene": "SC-01",
+        "style": "ST-01",
+        "light": "LT-01",
+        "layout": "LO-09",
+        "spec": "SP-08",
+        "decor": [],
+        "goal": "GO-03",
+        "people": "PP-01",
+        "material": "MT-01"
+      },
+      "validates": "纯白铁律分支：极简风 × Amazon 主图，验证禁文字禁道具能不能走通",
+      "tested": false
+    },
+    {
+      "id": "CS-02",
+      "zh": "数码耳机抖音促销海报",
+      "recipe": {
+        "form": "FO-08",
+        "category": "CT-03",
+        "shot": "SH-08",
+        "scene": "SC-11",
+        "style": "ST-04",
+        "light": "LT-05",
+        "layout": "LO-08",
+        "spec": "SP-05",
+        "decor": [
+          "DC-08"
+        ],
+        "goal": "GO-08",
+        "people": "PP-01",
+        "material": "MT-02"
+      },
+      "validates": "高能量分支：悬浮机位 + 霓虹光 + 爆炸贴叠加会不会糊",
+      "tested": false
+    },
+    {
+      "id": "CS-03",
+      "zh": "零食详情页长图",
+      "recipe": {
+        "form": "FO-04",
+        "category": "CT-04",
+        "shot": "SH-03",
+        "scene": "SC-06",
+        "style": "ST-08",
+        "light": "LT-03",
+        "layout": "LO-10",
+        "spec": "SP-07",
+        "decor": [
+          "DC-07"
+        ],
+        "goal": "GO-04",
+        "people": "PP-01",
+        "material": "MT-06"
+      },
+      "validates": "长图滚动分支：分镜节奏 + 高密度卖点分区与可读性",
+      "tested": false
+    },
+    {
+      "id": "CS-04",
+      "zh": "服饰买家秀（小红书）",
+      "recipe": {
+        "form": "FO-05",
+        "category": "CT-02",
+        "shot": "SH-05",
+        "scene": "SC-08",
+        "style": "ST-05",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-06",
+        "decor": [],
+        "goal": "GO-06",
+        "people": "PP-05",
+        "material": "MT-03"
+      },
+      "validates": "真实感分支：买家秀刻意不要影棚味，验证生活场景 + 自然光",
+      "tested": false
+    },
+    {
+      "id": "CS-05",
+      "zh": "家居独立站 Banner",
+      "recipe": {
+        "form": "FO-07",
+        "category": "CT-05",
+        "shot": "SH-02",
+        "scene": "SC-04",
+        "style": "ST-02",
+        "light": "LT-08",
+        "layout": "LO-06",
+        "spec": "SP-11",
+        "decor": [
+          "DC-07"
+        ],
+        "goal": "GO-07",
+        "people": "PP-01",
+        "material": "MT-05"
+      },
+      "validates": "横幅分支：左图右文 + 安全边距 + 跨图同调性",
+      "tested": false
+    },
+    {
+      "id": "CS-06",
+      "zh": "母婴礼盒推文图（X）",
+      "recipe": {
+        "form": "FO-09",
+        "category": "CT-12",
+        "shot": "SH-10",
+        "scene": "SC-07",
+        "style": "ST-09",
+        "light": "LT-01",
+        "layout": "LO-01",
+        "spec": "SP-13",
+        "decor": [
+          "DC-01"
+        ],
+        "goal": "GO-01",
+        "people": "PP-02",
+        "material": "MT-10"
+      },
+      "validates": "社媒分支：大字报标题在 16:9 小图预览下的可读性",
+      "tested": false
+    },
+    {
+      "id": "CS-07",
+      "zh": "母婴奶瓶小程序主图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-06",
+        "shot": "SH-04",
+        "scene": "SC-07",
+        "style": "ST-09",
+        "light": "LT-03",
+        "layout": "LO-04",
+        "spec": "SP-15",
+        "decor": [
+          "DC-05"
+        ],
+        "goal": "GO-03",
+        "people": "PP-02",
+        "material": "MT-09"
+      },
+      "validates": "柔光卧室 × 手持奶瓶：验证萌系风小程序主图的手部入镜与商品保护边界",
+      "tested": false
+    },
+    {
+      "id": "CS-08",
+      "zh": "运动跑鞋天猫场景主图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-07",
+        "shot": "SH-09",
+        "scene": "SC-08",
+        "style": "ST-10",
+        "light": "LT-02",
+        "layout": "LO-06",
+        "spec": "SP-01",
+        "decor": [
+          "DC-04"
+        ],
+        "goal": "GO-01",
+        "people": "PP-03",
+        "material": "MT-03"
+      },
+      "validates": "户外逆光 × 半身模特：验证街头潮流风天猫场景主图的人物+产品构图",
+      "tested": false
+    },
+    {
+      "id": "CS-09",
+      "zh": "轻奢首饰 Etsy 场景图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-08",
+        "shot": "SH-06",
+        "scene": "SC-12",
+        "style": "ST-07",
+        "light": "LT-07",
+        "layout": "LO-05",
+        "spec": "SP-10",
+        "decor": [],
+        "goal": "GO-03",
+        "people": "PP-01",
+        "material": "MT-02"
+      },
+      "validates": "丝绸绸缎 × 微距细节：验证奢华金黑在 Etsy 场景主图的逆光通透质感",
+      "tested": false
+    },
+    {
+      "id": "CS-10",
+      "zh": "文创手账详情页长图",
+      "recipe": {
+        "form": "FO-04",
+        "category": "CT-09",
+        "shot": "SH-03",
+        "scene": "SC-09",
+        "style": "ST-05",
+        "light": "LT-03",
+        "layout": "LO-10",
+        "spec": "SP-07",
+        "decor": [
+          "DC-10"
+        ],
+        "goal": "GO-04",
+        "people": "PP-02",
+        "material": "MT-10"
+      },
+      "validates": "平铺俯拍 × 长图分镜：验证日系清新文具详情页的分镜节奏与手部入镜",
+      "tested": false
+    },
+    {
+      "id": "CS-11",
+      "zh": "宠物零食 ins 买家秀",
+      "recipe": {
+        "form": "FO-05",
+        "category": "CT-10",
+        "shot": "SH-05",
+        "scene": "SC-07",
+        "style": "ST-02",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-12",
+        "decor": [],
+        "goal": "GO-06",
+        "people": "PP-05",
+        "material": "MT-08"
+      },
+      "validates": "卧室抓拍 × 买家秀：验证 ins 奶油风宠物实拍图在 Instagram 的留白排版",
+      "tested": false
+    },
+    {
+      "id": "CS-12",
+      "zh": "滋补礼盒京东场景主图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-11",
+        "shot": "SH-01",
+        "scene": "SC-03",
+        "style": "ST-03",
+        "light": "LT-01",
+        "layout": "LO-09",
+        "spec": "SP-03",
+        "decor": [
+          "DC-03"
+        ],
+        "goal": "GO-07",
+        "people": "PP-01",
+        "material": "MT-01"
+      },
+      "validates": "大理石台面 × 国潮新中式：验证滋补品类京东场景主图的信任感表达",
+      "tested": false
+    },
+    {
+      "id": "CS-13",
+      "zh": "车载用品 FB 促销海报",
+      "recipe": {
+        "form": "FO-08",
+        "category": "CT-13",
+        "shot": "SH-08",
+        "scene": "SC-02",
+        "style": "ST-04",
+        "light": "LT-05",
+        "layout": "LO-08",
+        "spec": "SP-14",
+        "decor": [
+          "DC-08"
+        ],
+        "goal": "GO-08",
+        "people": "PP-01",
+        "material": "MT-09"
+      },
+      "validates": "悬浮动态 × 价格爆炸贴：验证科技感汽车用品 FB 促销海报的紧迫感密度",
+      "tested": false
+    },
+    {
+      "id": "CS-14",
+      "zh": "工具套装拼多多信息图",
+      "recipe": {
+        "form": "FO-11",
+        "category": "CT-14",
+        "shot": "SH-07",
+        "scene": "SC-01",
+        "style": "ST-11",
+        "light": "LT-06",
+        "layout": "LO-02",
+        "spec": "SP-02",
+        "decor": [],
+        "goal": "GO-02",
+        "people": "PP-02",
+        "material": "MT-02"
+      },
+      "validates": "多角度宫格 × 卖点三宫格：验证性冷淡灰调工具信息图在拼多多的卖点传达",
+      "tested": false
+    },
+    {
+      "id": "CS-15",
+      "zh": "美妆水感模特主图",
+      "recipe": {
+        "form": "FO-03",
+        "category": "CT-01",
+        "shot": "SH-09",
+        "scene": "SC-05",
+        "style": "ST-08",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-01",
+        "decor": [],
+        "goal": "GO-06",
+        "people": "PP-03",
+        "material": "MT-07"
+      },
+      "validates": "浴室水汽 × 半身模特：验证模特主图在潮湿场景的水感质地与商品保护边界",
+      "tested": false
+    },
+    {
+      "id": "CS-16",
+      "zh": "美妆成分对比图（小红书）",
+      "recipe": {
+        "form": "FO-06",
+        "category": "CT-01",
+        "shot": "SH-01",
+        "scene": "SC-03",
+        "style": "ST-01",
+        "light": "LT-01",
+        "layout": "LO-07",
+        "spec": "SP-06",
+        "decor": [],
+        "goal": "GO-05",
+        "people": "PP-02",
+        "material": "MT-01"
+      },
+      "validates": "标注引导 × 对比图：验证卖点标注在对比构图中的可读性（避开 LO-08 极简冲突）",
+      "tested": false
+    },
+    {
+      "id": "CS-17",
+      "zh": "美妆成分微距 A+ 长图",
+      "recipe": {
+        "form": "FO-04",
+        "category": "CT-01",
+        "shot": "SH-06",
+        "scene": "SC-01",
+        "style": "ST-07",
+        "light": "LT-07",
+        "layout": "LO-10",
+        "spec": "SP-09",
+        "decor": [
+          "DC-02"
+        ],
+        "goal": "GO-04",
+        "people": "PP-01",
+        "material": "MT-07"
+      },
+      "validates": "逆光水花 × 微距：验证 Amazon A+ 副图的高质感成分表达（SP-09 / DC-02 首次覆盖）",
+      "tested": false
+    },
+    {
+      "id": "CS-18",
+      "zh": "复古胶片皮具模特主图",
+      "recipe": {
+        "form": "FO-03",
+        "category": "CT-02",
+        "shot": "SH-09",
+        "scene": "SC-08",
+        "style": "ST-06",
+        "light": "LT-02",
+        "layout": "LO-06",
+        "spec": "SP-01",
+        "decor": [],
+        "goal": "GO-01",
+        "people": "PP-04",
+        "material": "MT-04"
+      },
+      "validates": "全身模特 × 皮革质感：验证复古胶片调在模特主图的胶片颗粒与色彩还原",
+      "tested": false
+    },
+    {
+      "id": "CS-19",
+      "zh": "通勤包办公买家秀",
+      "recipe": {
+        "form": "FO-05",
+        "category": "CT-02",
+        "shot": "SH-05",
+        "scene": "SC-09",
+        "style": "ST-11",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-06",
+        "decor": [
+          "DC-09"
+        ],
+        "goal": "GO-06",
+        "people": "PP-05",
+        "material": "MT-03"
+      },
+      "validates": "办公桌面 × 使用抓拍：验证性冷淡买家秀的 DC-09 颗粒噪点真实感",
+      "tested": false
+    },
+    {
+      "id": "CS-20",
+      "zh": "服饰全家福波普推文图",
+      "recipe": {
+        "form": "FO-09",
+        "category": "CT-02",
+        "shot": "SH-10",
+        "scene": "SC-02",
+        "style": "ST-12",
+        "light": "LT-08",
+        "layout": "LO-03",
+        "spec": "SP-13",
+        "decor": [
+          "DC-04"
+        ],
+        "goal": "GO-01",
+        "people": "PP-01",
+        "material": "MT-08"
+      },
+      "validates": "孟菲斯波普 × 对角线标题：验证高饱和撞色在 X 推文图的点击力",
+      "tested": false
+    },
+    {
+      "id": "CS-21",
+      "zh": "数码宫格白底主图（拼多多）",
+      "recipe": {
+        "form": "FO-01",
+        "category": "CT-03",
+        "shot": "SH-07",
+        "scene": "SC-01",
+        "style": "ST-11",
+        "light": "LT-06",
+        "layout": "LO-02",
+        "spec": "SP-02",
+        "decor": [],
+        "goal": "GO-02",
+        "people": "PP-02",
+        "material": "MT-02"
+      },
+      "validates": "多角度宫格 × 白底铁律：验证拼多多白底图的顶光均匀与宫格信息密度",
+      "tested": false
+    },
+    {
+      "id": "CS-22",
+      "zh": "数码手持场景商详图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-03",
+        "shot": "SH-04",
+        "scene": "SC-09",
+        "style": "ST-04",
+        "light": "LT-03",
+        "layout": "LO-07",
+        "spec": "SP-04",
+        "decor": [
+          "DC-10"
+        ],
+        "goal": "GO-04",
+        "people": "PP-02",
+        "material": "MT-02"
+      },
+      "validates": "标注引导 × 商详图：验证抖音商详的竖屏可读性与科技感平衡（SP-04 首次覆盖）",
+      "tested": false
+    },
+    {
+      "id": "CS-23",
+      "zh": "数码波普促销海报",
+      "recipe": {
+        "form": "FO-08",
+        "category": "CT-03",
+        "shot": "SH-08",
+        "scene": "SC-02",
+        "style": "ST-12",
+        "light": "LT-05",
+        "layout": "LO-08",
+        "spec": "SP-14",
+        "decor": [
+          "DC-08"
+        ],
+        "goal": "GO-08",
+        "people": "PP-01",
+        "material": "MT-08"
+      },
+      "validates": "孟菲斯波普 × 爆炸贴：验证波普高饱和与促销紧迫感的叠加不糊",
+      "tested": false
+    },
+    {
+      "id": "CS-24",
+      "zh": "食品厨房晨光场景主图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-04",
+        "shot": "SH-04",
+        "scene": "SC-06",
+        "style": "ST-08",
+        "light": "LT-03",
+        "layout": "LO-04",
+        "spec": "SP-03",
+        "decor": [
+          "DC-07"
+        ],
+        "goal": "GO-03",
+        "people": "PP-02",
+        "material": "MT-06"
+      },
+      "validates": "厨房晨光 × 手持特写：验证食品场景主图的信任感与食欲感",
+      "tested": false
+    },
+    {
+      "id": "CS-25",
+      "zh": "食品平铺对比图（小红书）",
+      "recipe": {
+        "form": "FO-06",
+        "category": "CT-04",
+        "shot": "SH-03",
+        "scene": "SC-04",
+        "style": "ST-02",
+        "light": "LT-03",
+        "layout": "LO-07",
+        "spec": "SP-06",
+        "decor": [],
+        "goal": "GO-05",
+        "people": "PP-01",
+        "material": "MT-06"
+      },
+      "validates": "平铺俯拍 × 对比图：验证食品对比图的公平构图（同机位同光线）",
+      "tested": false
+    },
+    {
+      "id": "CS-26",
+      "zh": "食品节日礼盒推文图",
+      "recipe": {
+        "form": "FO-09",
+        "category": "CT-04",
+        "shot": "SH-10",
+        "scene": "SC-10",
+        "style": "ST-03",
+        "light": "LT-04",
+        "layout": "LO-01",
+        "spec": "SP-13",
+        "decor": [
+          "DC-03"
+        ],
+        "goal": "GO-07",
+        "people": "PP-01",
+        "material": "MT-10"
+      },
+      "validates": "硬光戏剧 × 大字报：验证节日礼盒推文图的强对比与标题可读性",
+      "tested": false
+    },
+    {
+      "id": "CS-27",
+      "zh": "家居品牌店铺装修长图",
+      "recipe": {
+        "form": "FO-10",
+        "category": "CT-05",
+        "shot": "SH-03",
+        "scene": "SC-04",
+        "style": "ST-02",
+        "light": "LT-08",
+        "layout": "LO-06",
+        "spec": "SP-16",
+        "decor": [
+          "DC-07"
+        ],
+        "goal": "GO-07",
+        "people": "PP-01",
+        "material": "MT-05"
+      },
+      "validates": "店铺装修 × 品牌视觉：验证独立站首页横幅的同调性（FO-10 / SP-16 首次覆盖）",
+      "tested": false
+    },
+    {
+      "id": "CS-28",
+      "zh": "家居奢华大理石 Banner",
+      "recipe": {
+        "form": "FO-07",
+        "category": "CT-05",
+        "shot": "SH-02",
+        "scene": "SC-03",
+        "style": "ST-07",
+        "light": "LT-01",
+        "layout": "LO-06",
+        "spec": "SP-11",
+        "decor": [],
+        "goal": "GO-03",
+        "people": "PP-01",
+        "material": "MT-05"
+      },
+      "validates": "大理石 × 奢华金黑：验证高端家居 Banner 的质感反差",
+      "tested": false
+    },
+    {
+      "id": "CS-29",
+      "zh": "家居日系买家秀（Instagram）",
+      "recipe": {
+        "form": "FO-05",
+        "category": "CT-05",
+        "shot": "SH-05",
+        "scene": "SC-07",
+        "style": "ST-05",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-12",
+        "decor": [],
+        "goal": "GO-06",
+        "people": "PP-05",
+        "material": "MT-08"
+      },
+      "validates": "卧室柔光 × 使用抓拍：验证日系家居买家秀的生活感留白",
+      "tested": false
+    },
+    {
+      "id": "CS-30",
+      "zh": "母婴奶瓶标注对比图",
+      "recipe": {
+        "form": "FO-06",
+        "category": "CT-06",
+        "shot": "SH-01",
+        "scene": "SC-07",
+        "style": "ST-09",
+        "light": "LT-03",
+        "layout": "LO-07",
+        "spec": "SP-15",
+        "decor": [
+          "DC-05"
+        ],
+        "goal": "GO-05",
+        "people": "PP-02",
+        "material": "MT-08"
+      },
+      "validates": "标注引导 × 萌系：验证小程序对比图的卖点标注与柔和调性兼容",
+      "tested": false
+    },
+    {
+      "id": "CS-31",
+      "zh": "母婴亲子节日推文图",
+      "recipe": {
+        "form": "FO-09",
+        "category": "CT-06",
+        "shot": "SH-10",
+        "scene": "SC-10",
+        "style": "ST-02",
+        "light": "LT-01",
+        "layout": "LO-03",
+        "spec": "SP-13",
+        "decor": [
+          "DC-01"
+        ],
+        "goal": "GO-01",
+        "people": "PP-06",
+        "material": "MT-10"
+      },
+      "validates": "多人场景 × 包装全家福：验证亲子同框推文图的人物引导与画面秩序",
+      "tested": false
+    },
+    {
+      "id": "CS-32",
+      "zh": "母婴宫格白底主图（拼多多）",
+      "recipe": {
+        "form": "FO-01",
+        "category": "CT-06",
+        "shot": "SH-07",
+        "scene": "SC-01",
+        "style": "ST-11",
+        "light": "LT-06",
+        "layout": "LO-02",
+        "spec": "SP-02",
+        "decor": [],
+        "goal": "GO-02",
+        "people": "PP-01",
+        "material": "MT-08"
+      },
+      "validates": "宫格 × 白底：验证母婴拼多多主图的多角度信息密度（铁律内）",
+      "tested": false
+    },
+    {
+      "id": "CS-33",
+      "zh": "运动街头硬光模特主图",
+      "recipe": {
+        "form": "FO-03",
+        "category": "CT-07",
+        "shot": "SH-09",
+        "scene": "SC-08",
+        "style": "ST-10",
+        "light": "LT-04",
+        "layout": "LO-03",
+        "spec": "SP-01",
+        "decor": [
+          "DC-04"
+        ],
+        "goal": "GO-01",
+        "people": "PP-04",
+        "material": "MT-03"
+      },
+      "validates": "硬光戏剧 × 全身模特：验证街头潮流动感的戏剧光影（LT-04 首次覆盖）",
+      "tested": false
+    },
+    {
+      "id": "CS-34",
+      "zh": "运动装备霓虹详情长图",
+      "recipe": {
+        "form": "FO-04",
+        "category": "CT-07",
+        "shot": "SH-06",
+        "scene": "SC-02",
+        "style": "ST-04",
+        "light": "LT-05",
+        "layout": "LO-10",
+        "spec": "SP-07",
+        "decor": [],
+        "goal": "GO-04",
+        "people": "PP-01",
+        "material": "MT-02"
+      },
+      "validates": "霓虹 × 微距：验证运动装备科技感长图的分镜节奏",
+      "tested": false
+    },
+    {
+      "id": "CS-35",
+      "zh": "运动水壶 AI 批量基线",
+      "recipe": {
+        "form": "FO-12",
+        "category": "CT-07",
+        "shot": "SH-01",
+        "scene": "SC-01",
+        "style": "ST-01",
+        "light": "LT-01",
+        "layout": "LO-09",
+        "spec": "SP-16",
+        "decor": [],
+        "goal": "GO-02",
+        "people": "PP-01",
+        "material": "MT-08"
+      },
+      "validates": "AI 批量 × SKU 变体：验证同配方换色批量出图的稳定性基线（FO-12 首次覆盖）",
+      "tested": false
+    },
+    {
+      "id": "CS-36",
+      "zh": "珠宝品牌居中仪式感视觉",
+      "recipe": {
+        "form": "FO-10",
+        "category": "CT-08",
+        "shot": "SH-06",
+        "scene": "SC-12",
+        "style": "ST-07",
+        "light": "LT-07",
+        "layout": "LO-05",
+        "spec": "SP-16",
+        "decor": [],
+        "goal": "GO-03",
+        "people": "PP-01",
+        "material": "MT-02"
+      },
+      "validates": "居中仪式感 × 逆光：验证珠宝品牌视觉的仪式感构图",
+      "tested": false
+    },
+    {
+      "id": "CS-37",
+      "zh": "珠宝手持买家秀（Instagram）",
+      "recipe": {
+        "form": "FO-05",
+        "category": "CT-08",
+        "shot": "SH-04",
+        "scene": "SC-07",
+        "style": "ST-02",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-12",
+        "decor": [],
+        "goal": "GO-06",
+        "people": "PP-05",
+        "material": "MT-02"
+      },
+      "validates": "手持特写 × 买家秀：验证贵金属在自然光下的真实反光（不过曝）",
+      "tested": false
+    },
+    {
+      "id": "CS-38",
+      "zh": "珠宝硬光促销海报",
+      "recipe": {
+        "form": "FO-08",
+        "category": "CT-08",
+        "shot": "SH-01",
+        "scene": "SC-02",
+        "style": "ST-07",
+        "light": "LT-04",
+        "layout": "LO-08",
+        "spec": "SP-14",
+        "decor": [
+          "DC-08"
+        ],
+        "goal": "GO-08",
+        "people": "PP-01",
+        "material": "MT-02"
+      },
+      "validates": "硬光 × 爆炸贴：验证奢华调促销海报的金黑与高饱和贴纸冲突边界",
+      "tested": false
+    },
+    {
+      "id": "CS-39",
+      "zh": "文创卖点宫格商详图",
+      "recipe": {
+        "form": "FO-11",
+        "category": "CT-09",
+        "shot": "SH-03",
+        "scene": "SC-09",
+        "style": "ST-05",
+        "light": "LT-03",
+        "layout": "LO-02",
+        "spec": "SP-04",
+        "decor": [
+          "DC-10"
+        ],
+        "goal": "GO-02",
+        "people": "PP-02",
+        "material": "MT-10"
+      },
+      "validates": "卖点三宫格 × 商详：验证文创信息图在抖音商详的竖屏阅读流",
+      "tested": false
+    },
+    {
+      "id": "CS-40",
+      "zh": "文创波普批量宫格",
+      "recipe": {
+        "form": "FO-12",
+        "category": "CT-09",
+        "shot": "SH-07",
+        "scene": "SC-01",
+        "style": "ST-12",
+        "light": "LT-08",
+        "layout": "LO-02",
+        "spec": "SP-02",
+        "decor": [
+          "DC-04"
+        ],
+        "goal": "GO-02",
+        "people": "PP-01",
+        "material": "MT-10"
+      },
+      "validates": "波普 × 宫格批量：验证高饱和文创 SKU 批量的色彩一致性",
+      "tested": false
+    },
+    {
+      "id": "CS-41",
+      "zh": "文创复古胶片买家秀",
+      "recipe": {
+        "form": "FO-05",
+        "category": "CT-09",
+        "shot": "SH-05",
+        "scene": "SC-09",
+        "style": "ST-06",
+        "light": "LT-03",
+        "layout": "LO-09",
+        "spec": "SP-06",
+        "decor": [
+          "DC-09"
+        ],
+        "goal": "GO-06",
+        "people": "PP-05",
+        "material": "MT-10"
+      },
+      "validates": "复古胶片 × 买家秀：验证胶片颗粒在手账场景的怀旧感",
+      "tested": false
+    },
+    {
+      "id": "CS-42",
+      "zh": "宠物多人户外推文图",
+      "recipe": {
+        "form": "FO-09",
+        "category": "CT-10",
+        "shot": "SH-09",
+        "scene": "SC-08",
+        "style": "ST-06",
+        "light": "LT-02",
+        "layout": "LO-03",
+        "spec": "SP-13",
+        "decor": [],
+        "goal": "GO-01",
+        "people": "PP-06",
+        "material": "MT-08"
+      },
+      "validates": "多人遛狗 × 复古胶片：验证宠物推文图的人物+动物双主体焦点",
+      "tested": false
+    },
+    {
+      "id": "CS-43",
+      "zh": "宠物用品功能信息图",
+      "recipe": {
+        "form": "FO-11",
+        "category": "CT-10",
+        "shot": "SH-07",
+        "scene": "SC-01",
+        "style": "ST-11",
+        "light": "LT-06",
+        "layout": "LO-07",
+        "spec": "SP-04",
+        "decor": [],
+        "goal": "GO-04",
+        "people": "PP-01",
+        "material": "MT-08"
+      },
+      "validates": "标注引导 × 宫格：验证宠物用品功能解释图的干货密度",
+      "tested": false
+    },
+    {
+      "id": "CS-44",
+      "zh": "滋补品厨房日常场景图",
+      "recipe": {
+        "form": "FO-02",
+        "category": "CT-11",
+        "shot": "SH-04",
+        "scene": "SC-06",
+        "style": "ST-08",
+        "light": "LT-03",
+        "layout": "LO-04",
+        "spec": "SP-03",
+        "decor": [
+          "DC-03"
+        ],
+        "goal": "GO-04",
+        "people": "PP-02",
+        "material": "MT-01"
+      },
+      "validates": "厨房晨光 × 手持：验证滋补品日常化场景的信任感",
+      "tested": false
+    },
+    {
+      "id": "CS-45",
+      "zh": "滋补国潮品牌店铺视觉",
+      "recipe": {
+        "form": "FO-10",
+        "category": "CT-11",
+        "shot": "SH-02",
+        "scene": "SC-03",
+        "style": "ST-03",
+        "light": "LT-01",
+        "layout": "LO-06",
+        "spec": "SP-16",
+        "decor": [
+          "DC-07"
+        ],
+        "goal": "GO-07",
+        "people": "PP-01",
+        "material": "MT-01"
+      },
+      "validates": "45° 立体角 × 国潮：验证滋补品牌视觉的新中式仪式感",
+      "tested": false
+    }
+  ]
+}

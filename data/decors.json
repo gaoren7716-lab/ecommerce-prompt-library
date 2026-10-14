@@ -1,0 +1,18 @@
+{
+  "dim": "decor",
+  "zh": "点缀元素",
+  "who": "收尾时才加（按需）",
+  "decides": "点睛道具——密度超 3 个就删",
+  "items": [
+    { "id": "DC-01", "zh": "丝带飘带", "prompt": "flowing silk ribbons swirling around the product" },
+    { "id": "DC-02", "zh": "水花飞溅", "prompt": "dynamic water splash frozen in motion around the product" },
+    { "id": "DC-03", "zh": "花瓣散落", "prompt": "scattered flower petals drifting through the air" },
+    { "id": "DC-04", "zh": "几何色块", "prompt": "geometric color block shapes layered in the background" },
+    { "id": "DC-05", "zh": "光斑星星", "prompt": "sparkling light bokeh and star glints" },
+    { "id": "DC-06", "zh": "礼盒包装", "prompt": "an elegant gift box with ribbon placed beside the product" },
+    { "id": "DC-07", "zh": "植物绿叶", "prompt": "fresh green leaves framing the edges of the frame" },
+    { "id": "DC-08", "zh": "促销标签", "prompt": "bold promotional badges and hanging sale tags" },
+    { "id": "DC-09", "zh": "颗粒噪点", "prompt": "subtle film grain texture overlay" },
+    { "id": "DC-10", "zh": "线条描边", "prompt": "hand-drawn doodle line accents and playful arrows" }
+  ]
+}

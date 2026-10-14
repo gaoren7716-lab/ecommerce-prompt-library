@@ -1,0 +1,224 @@
+{
+  "dim": "palettes",
+  "zh": "风格配色参考",
+  "who": "参考层（不是字典，是搭配起点）",
+  "decides": "什么风格配什么色系——换风格时整套色一起换，别单点配色。数据是观察级（seen），未经出图实测",
+  "items": [
+    {
+      "id": "PL-01",
+      "style": "ST-01",
+      "styleZh": "高级极简",
+      "swatches": [
+        { "hex": "#FFFFFF", "name": "云白" },
+        { "hex": "#F4F1EC", "name": "米白" },
+        { "hex": "#D8D3C8", "name": "浅灰" },
+        { "hex": "#2B2B2B", "name": "墨黑" },
+        { "hex": "#A89F8F", "name": "灰驼" }
+      ],
+      "cats": ["CT-01", "CT-03", "CT-05"],
+      "scenes": ["SC-01", "SC-02", "SC-03"],
+      "lights": ["LT-01", "LT-08"],
+      "layouts": ["LO-09", "LO-05"],
+      "note": "底色占画面 70% 以上，商品是唯一焦点；文字最多一个层级。",
+      "avoid": "高饱和装饰色、第二种以上强调色、复杂道具"
+    },
+    {
+      "id": "PL-02",
+      "style": "ST-02",
+      "styleZh": "ins 奶油风",
+      "swatches": [
+        { "hex": "#F6EDE1", "name": "奶油" },
+        { "hex": "#EAD9C2", "name": "燕麦" },
+        { "hex": "#D9BFA3", "name": "焦糖奶" },
+        { "hex": "#B98D6B", "name": "太妃" },
+        { "hex": "#FFFFFF", "name": "纯白" }
+      ],
+      "cats": ["CT-05", "CT-06", "CT-02", "CT-04"],
+      "scenes": ["SC-04", "SC-07", "SC-06"],
+      "lights": ["LT-03", "LT-01"],
+      "layouts": ["LO-05", "LO-04"],
+      "note": "同色系渐变是灵魂，材质往软糯靠（针织、亚麻、磨砂）。",
+      "avoid": "冷灰色、高对比黑色块、金属冷光"
+    },
+    {
+      "id": "PL-03",
+      "style": "ST-03",
+      "styleZh": "国潮新中式",
+      "swatches": [
+        { "hex": "#C0392B", "name": "朱红" },
+        { "hex": "#D4AF37", "name": "鎏金" },
+        { "hex": "#1A1A1A", "name": "玄黑" },
+        { "hex": "#F0E6D2", "name": "宣纸" },
+        { "hex": "#2E5C4A", "name": "松绿" }
+      ],
+      "cats": ["CT-12", "CT-04", "CT-09", "CT-05"],
+      "scenes": ["SC-12", "SC-04", "SC-03"],
+      "lights": ["LT-01", "LT-04"],
+      "layouts": ["LO-05", "LO-04"],
+      "note": "红金只做点缀（不超过画面 20%），宣纸底承托，纹样讲出处。",
+      "avoid": "大面积高饱和红金堆砌、纹样乱拼接、卡通化"
+    },
+    {
+      "id": "PL-04",
+      "style": "ST-04",
+      "styleZh": "科技未来感",
+      "swatches": [
+        { "hex": "#0B1E3B", "name": "深空蓝" },
+        { "hex": "#1E4A8F", "name": "电光蓝" },
+        { "hex": "#7C5CFF", "name": "紫外" },
+        { "hex": "#C0D8FF", "name": "冰蓝" },
+        { "hex": "#101418", "name": "碳黑" }
+      ],
+      "cats": ["CT-03", "CT-13", "CT-07"],
+      "scenes": ["SC-11", "SC-02"],
+      "lights": ["LT-05", "LT-08", "LT-02"],
+      "layouts": ["LO-01", "LO-03"],
+      "note": "深底浅字，光晕做焦点引导；参数上屏要克制，一行一个。",
+      "avoid": "暖色木质场景、密集小字、荧光绿"
+    },
+    {
+      "id": "PL-05",
+      "style": "ST-05",
+      "styleZh": "日系清新",
+      "swatches": [
+        { "hex": "#F2F5F0", "name": "雪白" },
+        { "hex": "#DCE8DC", "name": "抹茶奶" },
+        { "hex": "#B7CDBD", "name": "薄绿" },
+        { "hex": "#8FA8B8", "name": "雾蓝" },
+        { "hex": "#E8B4A0", "name": "樱粉" }
+      ],
+      "cats": ["CT-02", "CT-05", "CT-09", "CT-04"],
+      "scenes": ["SC-06", "SC-08", "SC-07"],
+      "lights": ["LT-03"],
+      "layouts": ["LO-09", "LO-05"],
+      "note": "低饱和 + 大留白，生活小物做呼吸感；阴影要淡。",
+      "avoid": "浓艳色彩、重投影、硬光"
+    },
+    {
+      "id": "PL-06",
+      "style": "ST-06",
+      "styleZh": "复古胶片",
+      "swatches": [
+        { "hex": "#E8DCC4", "name": "旧米" },
+        { "hex": "#C9A87C", "name": "秋棕" },
+        { "hex": "#8C5A3B", "name": "栗棕" },
+        { "hex": "#5C4A3A", "name": "深咖" },
+        { "hex": "#3E3A34", "name": "墨灰" }
+      ],
+      "cats": ["CT-09", "CT-02", "CT-04", "CT-08"],
+      "scenes": ["SC-04", "SC-07"],
+      "lights": ["LT-03", "LT-04"],
+      "layouts": ["LO-09"],
+      "note": "统一暖偏移 + 细颗粒，旧物道具（木盒、报纸、机械件）讲年代。",
+      "avoid": "数码感强光、纯白背景、高反光材质"
+    },
+    {
+      "id": "PL-07",
+      "style": "ST-07",
+      "styleZh": "奢华金黑",
+      "swatches": [
+        { "hex": "#0D0D0D", "name": "曜石黑" },
+        { "hex": "#C9A227", "name": "香槟金" },
+        { "hex": "#8A6D1F", "name": "古金" },
+        { "hex": "#F2E8C9", "name": "浅香槟" },
+        { "hex": "#2B2118", "name": "深棕" }
+      ],
+      "cats": ["CT-08", "CT-12", "CT-01", "CT-11"],
+      "scenes": ["SC-12", "SC-03"],
+      "lights": ["LT-06", "LT-02"],
+      "layouts": ["LO-05", "LO-04"],
+      "note": "金只做线条与点缀，黑底承托反光；一道聚光就够。",
+      "avoid": "大面积亮金、卡通元素、多光源乱反射"
+    },
+    {
+      "id": "PL-08",
+      "style": "ST-08",
+      "styleZh": "清新自然",
+      "swatches": [
+        { "hex": "#F7F9F4", "name": "晨白" },
+        { "hex": "#E3EDD9", "name": "嫩绿" },
+        { "hex": "#A8C686", "name": "草绿" },
+        { "hex": "#6B8E4E", "name": "橄榄" },
+        { "hex": "#D9C9A3", "name": "麦秆" }
+      ],
+      "cats": ["CT-04", "CT-06", "CT-05", "CT-10"],
+      "scenes": ["SC-08", "SC-06", "SC-04"],
+      "lights": ["LT-03"],
+      "layouts": ["LO-05", "LO-09"],
+      "note": "绿植与自然光是「新鲜」的证据；水珠只点在可食部位。",
+      "avoid": "塑料感道具、人工重投影、灰暗背景"
+    },
+    {
+      "id": "PL-09",
+      "style": "ST-09",
+      "styleZh": "可爱萌系",
+      "swatches": [
+        { "hex": "#FFF6F8", "name": "樱花白" },
+        { "hex": "#FFD9E3", "name": "粉粉" },
+        { "hex": "#C9E4FF", "name": "云蓝" },
+        { "hex": "#FFF0B8", "name": "奶黄" },
+        { "hex": "#B5E3C8", "name": "薄荷" }
+      ],
+      "cats": ["CT-06", "CT-10", "CT-09", "CT-02"],
+      "scenes": ["SC-07", "SC-06"],
+      "lights": ["LT-01"],
+      "layouts": ["LO-01", "LO-04"],
+      "note": "糖果色邻近搭配（相邻色相），圆角与手写体标题；一屏一个萌点。",
+      "avoid": "暗黑背景、硬光、超过三种主色"
+    },
+    {
+      "id": "PL-10",
+      "style": "ST-10",
+      "styleZh": "街头潮流",
+      "swatches": [
+        { "hex": "#141414", "name": "炭黑" },
+        { "hex": "#FF4D2E", "name": "潮橙" },
+        { "hex": "#0057FF", "name": "电蓝" },
+        { "hex": "#F2F2F2", "name": "石灰" },
+        { "hex": "#FFD400", "name": "明黄" }
+      ],
+      "cats": ["CT-07", "CT-02", "CT-03"],
+      "scenes": ["SC-11", "SC-02"],
+      "lights": ["LT-04", "LT-05"],
+      "layouts": ["LO-01", "LO-03"],
+      "note": "撞色 + 大字 + 涂鸦贴纸元素；倾斜构图加动势。",
+      "avoid": "柔光奶油调性、细弱文字、对称呆板布局"
+    },
+    {
+      "id": "PL-11",
+      "style": "ST-11",
+      "styleZh": "性冷淡灰调",
+      "swatches": [
+        { "hex": "#F4F4F4", "name": "浅灰" },
+        { "hex": "#D9D9D9", "name": "中灰" },
+        { "hex": "#8C8C8C", "name": "深灰" },
+        { "hex": "#4A4A4A", "name": "铁灰" },
+        { "hex": "#2E2E2E", "name": "炭灰" }
+      ],
+      "cats": ["CT-05", "CT-03", "CT-02"],
+      "scenes": ["SC-01", "SC-02", "SC-03"],
+      "lights": ["LT-01"],
+      "layouts": ["LO-09"],
+      "note": "无彩色主导，材质肌理是唯一装饰；层次靠灰度差。",
+      "avoid": "任何高饱和点缀色、花纹、彩色光"
+    },
+    {
+      "id": "PL-12",
+      "style": "ST-12",
+      "styleZh": "孟菲斯波普",
+      "swatches": [
+        { "hex": "#FFF9E6", "name": "奶油底" },
+        { "hex": "#FF5C5C", "name": "波普红" },
+        { "hex": "#FFC94D", "name": "明黄" },
+        { "hex": "#4DB6E8", "name": "天蓝" },
+        { "hex": "#7B5CD6", "name": "紫" }
+      ],
+      "cats": ["CT-09", "CT-06", "CT-04"],
+      "scenes": ["SC-02"],
+      "lights": ["LT-01"],
+      "layouts": ["LO-01", "LO-03"],
+      "note": "几何色块不超过三种、粗描边；点线面各司其职。",
+      "avoid": "写实材质特写混入、暗沉背景、细密文字"
+    }
+  ]
+}

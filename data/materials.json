@@ -1,0 +1,58 @@
+{
+  "dim": "materials",
+  "zh": "材质表现",
+  "who": "随品类定（派生位）",
+  "decides": "商品质感怎么被看见——AI 最容易翻车也最出效果的一层",
+  "items": [
+    {
+      "id": "MT-01",
+      "zh": "玻璃通透",
+      "prompt": "transparent glass material with realistic refraction, highlights and natural light transmission"
+    },
+    {
+      "id": "MT-02",
+      "zh": "金属反射",
+      "prompt": "polished metal surface with realistic reflections and precise specular highlights"
+    },
+    {
+      "id": "MT-03",
+      "zh": "织物纹理",
+      "prompt": "woven fabric texture with visible threads, natural drape and soft folds"
+    },
+    {
+      "id": "MT-04",
+      "zh": "皮革质感",
+      "prompt": "genuine leather texture with natural grain and subtle sheen"
+    },
+    {
+      "id": "MT-05",
+      "zh": "木质陶瓷",
+      "prompt": "natural wood grain and glazed ceramic surfaces with soft matte reflection"
+    },
+    {
+      "id": "MT-06",
+      "zh": "食品肌理",
+      "prompt": "appetizing food texture with moist fresh surfaces and visible cross-section detail"
+    },
+    {
+      "id": "MT-07",
+      "zh": "膏体水质",
+      "prompt": "creamy balm texture swatch and clear viscous liquid with slow drip"
+    },
+    {
+      "id": "MT-08",
+      "zh": "塑料哑光",
+      "prompt": "matte plastic surface with fine even tooth and soft diffuse reflection"
+    },
+    {
+      "id": "MT-09",
+      "zh": "磨砂雾面",
+      "prompt": "frosted translucent surface with soft light diffusion and velvety touch"
+    },
+    {
+      "id": "MT-10",
+      "zh": "纸品礼盒",
+      "prompt": "premium textured cardstock packaging with hot-stamp foil finish and crisp embossed edges"
+    }
+  ]
+}

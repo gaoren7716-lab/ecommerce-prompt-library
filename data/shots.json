@@ -1,0 +1,18 @@
+{
+  "dim": "shot",
+  "zh": "构图机位",
+  "who": "随 form 定（派生位）",
+  "decides": "产品用什么角度与景别呈现",
+  "items": [
+    { "id": "SH-01", "zh": "正面特写", "prompt": "front-facing close-up product shot, product fills most of the frame, centered composition" },
+    { "id": "SH-02", "zh": "45° 立体角", "prompt": "three-quarter 45-degree product angle showing depth and side details" },
+    { "id": "SH-03", "zh": "平铺俯拍", "prompt": "flat-lay top-down arrangement, knolling-style neat placement of product and props" },
+    { "id": "SH-04", "zh": "手持特写", "prompt": "hand holding the product in close-up, natural grip showing real-world scale" },
+    { "id": "SH-05", "zh": "使用中抓拍", "prompt": "candid in-use moment, natural gesture, product clearly visible in the action" },
+    { "id": "SH-06", "zh": "微距细节", "prompt": "extreme macro detail shot of material texture and craftsmanship, razor-thin depth of field" },
+    { "id": "SH-07", "zh": "多角度宫格", "prompt": "multi-angle grid collage of the same product, four panels, perfectly consistent lighting across panels" },
+    { "id": "SH-08", "zh": "悬浮动态", "prompt": "floating levitating product with dynamic motion elements swirling around it, gravity-defying energy" },
+    { "id": "SH-09", "zh": "人物 + 产品", "prompt": "model interacting with the product, product in sharp focus in the foreground" },
+    { "id": "SH-10", "zh": "包装全家福", "prompt": "full product lineup with packaging, family shot showing everything included in the box" }
+  ]
+}

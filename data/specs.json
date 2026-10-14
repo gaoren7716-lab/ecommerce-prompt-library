@@ -1,0 +1,24 @@
+{
+  "dim": "spec",
+  "zh": "平台规格",
+  "who": "平台铁律（不可让步）",
+  "decides": "出多大、什么比例、哪些硬性禁区——高于一切风格偏好",
+  "items": [
+    { "id": "SP-01", "zh": "淘宝 / 天猫主图", "prompt": "square 1:1 composition sized for 800x800, product occupying most of the frame", "note": "第五张强制白底；牛皮癣大促贴慎用，主图点击率看产品不看不字" },
+    { "id": "SP-02", "zh": "拼多多主图", "prompt": "square 1:1 composition sized for 750x750, bold promotional style favored, high saturation", "note": "价格与促销信息可以直接大字上脸" },
+    { "id": "SP-03", "zh": "京东主图", "prompt": "square 1:1 composition sized for 800x800, clean product-forward presentation", "note": "白底感、品质感优先" },
+    { "id": "SP-04", "zh": "抖音商详图", "prompt": "3:4 vertical composition, high contrast tuned for fast feed scrolling" },
+    { "id": "SP-05", "zh": "抖音短视频封面", "prompt": "9:16 vertical cover frame, large readable title text safe from UI occlusion" },
+    { "id": "SP-06", "zh": "小红书笔记图", "prompt": "3:4 vertical composition, editorial lifestyle feel, friendly to text overlay" },
+    { "id": "SP-07", "zh": "详情页长图（750 宽）", "prompt": "750px wide vertical long-form page, clearly sectioned scroll layout" },
+    { "id": "SP-08", "zh": "Amazon 主图", "prompt": "pure white background RGB 255 255 255, professional studio product shot filling 85% of a square 2000x2000 frame, no text no logo no props no watermark", "note": "铁律：纯白底、禁一切文字图形道具，违规直接下架" },
+    { "id": "SP-09", "zh": "Amazon 副图 / A+", "prompt": "2000px square secondary image or 970x600 A+ content module, lifestyle and detail shots allowed" },
+    { "id": "SP-10", "zh": "Etsy 产品图", "prompt": "2000px square image, artisanal warm presentation, lifestyle context encouraged" },
+    { "id": "SP-11", "zh": "Shopify / 独立站 Banner", "prompt": "wide 1920x600 hero banner, key content inside responsive safe margins" },
+    { "id": "SP-12", "zh": "Instagram Feed", "prompt": "1:1 or 4:5 composition, strong color contrast tuned for feed stopping power" },
+    { "id": "SP-13", "zh": "X (Twitter) 推文图", "prompt": "16:9 landscape image sized 1200x675, readable even at small preview size" },
+    { "id": "SP-14", "zh": "Facebook 广告图", "prompt": "1.91:1 landscape ad creative, text occupying under 20% of the image area", "note": "文字占比超限会被降投放权重" },
+    { "id": "SP-15", "zh": "微信小程序商品图", "prompt": "square 1:1 composition, clean trustworthy presentation" },
+    { "id": "SP-16", "zh": "独立站详情图", "prompt": "flexible-width vertical page section, consistent brand art direction" }
+  ]
+}

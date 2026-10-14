@@ -1,0 +1,18 @@
+{
+  "dim": "layout",
+  "zh": "文案版式",
+  "who": "随 form 定（派生位）",
+  "decides": "卖点文案放在哪、信息怎么分层",
+  "items": [
+    { "id": "LO-01", "zh": "大字报标题", "prompt": "oversized headline text block across the top third, bold typography hierarchy" },
+    { "id": "LO-02", "zh": "卖点三宫格", "prompt": "three equal feature callout boxes arranged in a horizontal row" },
+    { "id": "LO-03", "zh": "对角线标题", "prompt": "diagonal dynamic title placement cutting across the composition" },
+    { "id": "LO-04", "zh": "上下分区", "prompt": "clear top-bottom split layout, copy zone above and product zone below" },
+    { "id": "LO-05", "zh": "居中仪式感", "prompt": "centered ceremonial composition, copy framed symmetrically around the product" },
+    { "id": "LO-06", "zh": "左图右文", "prompt": "left product right text split layout" },
+    { "id": "LO-07", "zh": "标注引导", "prompt": "thin annotation lines with labels pointing to product details" },
+    { "id": "LO-08", "zh": "价格爆炸贴", "prompt": "explosive starburst price sticker badge with the discount figure" },
+    { "id": "LO-09", "zh": "留白极简", "prompt": "minimal text, one small caption tucked in the corner, vast negative space" },
+    { "id": "LO-10", "zh": "长图分镜节奏", "prompt": "vertical scroll rhythm alternating full-bleed imagery with copy bands" }
+  ]
+}

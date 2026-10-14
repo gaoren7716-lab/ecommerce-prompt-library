@@ -1,0 +1,14 @@
+{
+  "dim": "people",
+  "zh": "人物出镜",
+  "who": "随 form 定（派生位）",
+  "decides": "谁在画面里、人和商品什么关系——与机位（shot）分工：这里管「谁」，机位管「怎么拍」",
+  "items": [
+    { "id": "PP-01", "zh": "无人物", "prompt": "product only, no people in frame" },
+    { "id": "PP-02", "zh": "手部入镜", "prompt": "hands only in frame holding or touching the product, natural well-groomed hands with correct finger count" },
+    { "id": "PP-03", "zh": "半身模特", "prompt": "half-body model presenting the product, natural pose" },
+    { "id": "PP-04", "zh": "全身模特", "prompt": "full-body model using or wearing the product, natural proportions" },
+    { "id": "PP-05", "zh": "使用互动", "prompt": "person naturally interacting with the product mid-action, candid moment" },
+    { "id": "PP-06", "zh": "多人场景", "prompt": "several people sharing the moment with the product, candid group lifestyle scene" }
+  ]
+}

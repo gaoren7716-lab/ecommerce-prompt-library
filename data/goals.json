@@ -1,0 +1,16 @@
+{
+  "dim": "goals",
+  "zh": "营销目标",
+  "who": "你（这张图要促成什么）",
+  "decides": "营销语气与信息重点——决定画面「劝」的力度",
+  "items": [
+    { "id": "GO-01", "zh": "吸引点击", "prompt": "thumb-stopping click-attracting composition, strong focal contrast", "note": "搜索列表里的 0.5 秒争夺战", "suggest": ["LO-01"] },
+    { "id": "GO-02", "zh": "突出卖点", "prompt": "single hero selling point emphasized visually, one clear takeaway", "note": "一图只讲一件事", "suggest": ["LO-07"] },
+    { "id": "GO-03", "zh": "建立信任", "prompt": "trust-building clean honest presentation, nothing over-promised", "note": "保健品/母婴/大件尤其重要", "suggest": ["LO-05"] },
+    { "id": "GO-04", "zh": "解释功能", "prompt": "function-explaining composition with clear annotated structure", "note": "数码家电详情页主力", "suggest": ["LO-02", "LO-07"] },
+    { "id": "GO-05", "zh": "对比竞品", "prompt": "competitive comparison framing, fair side-by-side visual argument", "note": "同机位同光线，否则像造假", "suggest": ["FO-06"] },
+    { "id": "GO-06", "zh": "展示效果", "prompt": "result-focused presentation showing visible outcome on real usage", "note": "前后对比/使用效果的落地页", "suggest": ["FO-06", "SH-05"] },
+    { "id": "GO-07", "zh": "促进加购", "prompt": "value-rich enticing presentation, gift-ready appeal", "note": "套装/赠品/礼盒氛围", "suggest": ["DC-06", "DC-08"] },
+    { "id": "GO-08", "zh": "制造紧迫感", "prompt": "urgency-driven sale energy, countdown mood, bold promotional urgency", "note": "大促专用，平时少用防审美疲劳", "suggest": ["LO-08", "DC-08"] }
+  ]
+}

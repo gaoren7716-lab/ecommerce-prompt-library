@@ -1,0 +1,16 @@
+{
+  "dim": "light",
+  "zh": "光影质感",
+  "who": "随 style 定（派生位）",
+  "decides": "光怎么打、情绪怎么落",
+  "items": [
+    { "id": "LT-01", "zh": "柔光棚拍", "prompt": "soft diffused studio lighting, gentle even shadows" },
+    { "id": "LT-02", "zh": "侧逆光轮廓", "prompt": "rim lighting from the side-back, glowing product outline separating it from the background" },
+    { "id": "LT-03", "zh": "自然窗光", "prompt": "natural window light, soft realistic shadows" },
+    { "id": "LT-04", "zh": "硬光戏剧", "prompt": "hard dramatic lighting, strong contrast and crisp shadow shapes" },
+    { "id": "LT-05", "zh": "霓虹混合光", "prompt": "neon mixed lighting, colorful glow reflections on surfaces" },
+    { "id": "LT-06", "zh": "顶光聚焦", "prompt": "focused top spotlight, sparkling highlights on facets, dark surroundings" },
+    { "id": "LT-07", "zh": "逆光通透", "prompt": "backlit translucency, light passing through the product" },
+    { "id": "LT-08", "zh": "影棚渐变光", "prompt": "studio gradient lighting, bright center fading toward darker edges" }
+  ]
+}

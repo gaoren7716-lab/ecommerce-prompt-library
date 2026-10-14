@@ -1,0 +1,20 @@
+{
+  "dim": "style",
+  "zh": "视觉风格",
+  "who": "你（品牌调性）",
+  "decides": "什么气质调性——跨图保持一致，形成店铺识别度",
+  "items": [
+    { "id": "ST-01", "zh": "高级极简", "prompt": "premium minimalist aesthetic, clean lines, generous negative space, high-end product photography" },
+    { "id": "ST-02", "zh": "ins 奶油风", "prompt": "creamy beige instagram aesthetic, soft warm tones, dreamy soft-focus mood" },
+    { "id": "ST-03", "zh": "国潮新中式", "prompt": "Chinese national trend style, oriental motifs, red and gold accents, modern-traditional fusion" },
+    { "id": "ST-04", "zh": "科技未来感", "prompt": "futuristic tech aesthetic, dark background with blue-purple light accents, sleek high-tech mood" },
+    { "id": "ST-05", "zh": "日系清新", "prompt": "japanese fresh style, airy light tones, muted pastel palette, film-like softness" },
+    { "id": "ST-06", "zh": "复古胶片", "prompt": "retro film photography look, subtle grain, warm faded colors, nostalgic mood" },
+    { "id": "ST-07", "zh": "奢华金黑", "prompt": "luxury black and gold aesthetic, dramatic contrast, opulent premium feel" },
+    { "id": "ST-08", "zh": "清新自然", "prompt": "fresh natural style, green and earth tones, organic wholesome feel" },
+    { "id": "ST-09", "zh": "可爱萌系", "prompt": "cute kawaii style, pastel colors, rounded shapes, playful props" },
+    { "id": "ST-10", "zh": "街头潮流", "prompt": "streetwear trendy style, bold graphic energy, urban attitude" },
+    { "id": "ST-11", "zh": "性冷淡灰调", "prompt": "muted grey minimalist tone, desaturated calm palette, quiet luxury" },
+    { "id": "ST-12", "zh": "孟菲斯波普", "prompt": "memphis pop style, geometric color blocks, playful retro patterns" }
+  ]
+}

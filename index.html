@@ -1,0 +1,2105 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>电商做图提示词库 · 电商视觉生产知识库</title>
+<script src="assets/data-bundle.js"></script>
+<script src="assets/gallery-imgs.js"></script>
+<script src="assets/engine.js"></script>
+<style>
+:root{
+  --bg:#f6f5f2; --panel:#ffffff; --panel2:#faf9f6; --ink:#26241f; --ink2:#6b6558; --ink3:#938d7f;
+  --line:#e6e2d8; --accent:#c8552c; --accent-ink:#ffffff; --soft:#f2efe8;
+  --accent-bg:#fdeee7;
+  --warn:#b3541e; --warn-bg:#fdf1e7; --hard:#8f2b2b; --hard-bg:#fbeaea;
+  --ok:#2e7d5b; --ok-bg:#e9f4ee; --sug:#2e7d5b; --sug-bg:#e9f4ee;
+  --law-bg:#eee9f8; --law-ink:#6a4bc4; --law-line:#d5c9f0;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,"Cascadia Mono",monospace;
+  --r:10px;
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --bg:#191a1d; --panel:#22242a; --panel2:#282b31; --ink:#eceae4; --ink2:#a39c90; --ink3:#837d72;
+    --line:#383c44; --accent:#e0714a; --accent-ink:#1a1a1a; --soft:#2c2f36;
+    --accent-bg:#33211a;
+    --warn:#e5a06b; --warn-bg:#33291c; --hard:#ef9b9b; --hard-bg:#3a2424;
+    --ok:#8fd0a5; --ok-bg:#1f3327; --sug:#8fd0a5; --sug-bg:#1f3327;
+    --law-bg:#2e2743; --law-ink:#b9a8f0; --law-line:#4a3f6e;
+  }
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.6 system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+code,.mono{font-family:var(--mono)}
+
+/* ---------- header ---------- */
+header{border-bottom:1px solid var(--line);background:var(--panel);padding:14px 18px 0}
+.hd{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.hd h1{font-size:17px;letter-spacing:.3px;display:flex;align-items:baseline;gap:8px}
+.hd h1 .tag{font:10px/1.6 var(--mono);letter-spacing:1.6px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--line);border-radius:4px;padding:1px 7px}
+.hd .sub{color:var(--ink2);font-size:12px}
+.hd .spacer{flex:1}
+.stamp{font:11px var(--mono);color:var(--ink2);white-space:nowrap}
+.stamp b{color:var(--accent)}
+.policy{margin:10px 0 0;padding:9px 12px;border-radius:var(--r);background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--accent);display:flex;gap:10px;align-items:flex-start}
+.policy .ptag{flex:0 0 auto;font:10px/1.6 var(--mono);letter-spacing:1px;color:var(--accent);background:var(--accent-bg);border:1px solid var(--line);border-radius:4px;padding:2px 7px}
+.policy .tx{flex:1;min-width:0;font-size:12.5px;line-height:1.66}
+.policy .tx .sub2{display:block;margin-top:2px;font-size:11.5px;color:var(--ink2)}
+.inv{display:flex;gap:18px;flex-wrap:wrap;align-items:baseline;margin:10px 0 0;padding-bottom:10px;font-size:12px;color:var(--ink2)}
+.inv b{font-family:var(--mono);color:var(--ink)}
+.gapline{margin:0 0 10px;font-size:12px;color:var(--warn)}
+
+/* ---------- 主导航（吸顶） ---------- */
+.main-nav{display:flex;gap:6px;padding:8px 18px 0;background:var(--panel);border-bottom:1px solid var(--line);overflow-x:auto;position:sticky;top:0;z-index:20}
+.main-nav button{flex:0 0 auto;border:1px solid var(--line);border-bottom:none;background:var(--panel2);color:var(--ink2);border-radius:8px 8px 0 0;padding:6px 13px 7px;cursor:pointer;font:12.5px/1.5 inherit;display:flex;align-items:baseline;gap:6px;white-space:nowrap;font-family:inherit}
+.main-nav button:hover{color:var(--ink);background:var(--soft)}
+.main-nav button.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+.main-nav .n{font:10px var(--mono);opacity:.72}
+
+/* ---------- 视图显隐：只走 class，不写内联 display ---------- */
+/* 注意：.wrap 在下方设置了 display:grid，与 .view 同特异性且更靠后，
+   会压过 .view{display:none} —— 所以 wrap 型视图必须显式写关闭态，
+   否则合成器会在所有页面泄露（2026-10-14 真实 Chrome 复现实锤）。 */
+.view{display:none}
+.view.on{display:block}
+main.wrap.view{display:none}
+main.wrap.view.on{display:grid}
+
+/* ---------- 通用 ---------- */
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:16px}
+.panel h2{font-size:15px;font-weight:600;margin:0 0 4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.panel .hint{color:var(--ink2);font-size:12px;margin-bottom:12px}
+.wrap{display:grid;gap:14px;padding:14px 18px 40px;grid-template-columns:minmax(300px,0.95fr) minmax(340px,1.25fr);align-items:start}
+@media (max-width:980px){.wrap{grid-template-columns:1fr}}
+
+/* ---------- 配方盘分步 + 输出降噪（2026-10-14 小白化） ---------- */
+.dim-adv{margin-top:10px;border:1px dashed var(--line);border-radius:10px;padding:8px 12px 10px;background:var(--panel)}
+.dim-adv summary{cursor:pointer;user-select:none;font-weight:600;font-size:13px;color:var(--ink2);list-style:none}
+.dim-adv summary::-webkit-details-marker{display:none}
+.dim-adv summary::before{content:"▸ ";font-size:11px}
+.dim-adv[open] summary::before{content:"▾ "}
+.dim-adv .dim{margin-top:8px}
+.dim-head .step{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;border-radius:999px;background:var(--accent);color:var(--accent-ink);font-size:12px;font-weight:700;padding:0 5px}
+details.out-more{min-width:0}
+details.out-more summary{display:inline-flex;align-items:center;cursor:pointer;user-select:none;list-style:none;font-size:12.5px;padding:4px 12px;border:1px solid var(--line);border-radius:999px;color:var(--ink2);background:var(--panel)}
+details.out-more summary::-webkit-details-marker{display:none}
+details.out-more summary:hover{border-color:var(--accent);color:var(--accent)}
+details.out-more .out-more-body{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.col{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);min-width:0}
+.col>h2{margin:0;padding:10px 12px;font-size:13px;letter-spacing:.4px;border-bottom:1px solid var(--line);color:var(--ink);display:flex;align-items:center;gap:8px;background:var(--panel2);border-radius:var(--r) var(--r) 0 0}
+.col>h2 .hint{font-weight:400;font-size:11px;color:var(--ink2);margin-left:auto}
+.body{padding:10px 12px}
+.sticky{position:sticky;top:46px}
+@media (max-width:980px){.sticky{position:static}}
+
+input[type=search],input[type=text],select,textarea{width:100%;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:9px;padding:9px 12px;font-size:14px;font-family:inherit}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.row{display:flex;gap:8px;align-items:center}
+.row+.row{margin-top:8px}
+label.lbl{font-size:13px;color:var(--ink2);min-width:64px}
+.filters{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 6px;max-height:170px;overflow:auto;align-items:center}
+.fchip{border:1px solid var(--line);background:var(--panel2);color:var(--ink2);border-radius:9px;padding:6px 13px;font-size:13px;cursor:pointer;white-space:nowrap}
+.fchip:hover{border-color:var(--accent);color:var(--ink)}
+.fchip.on{background:var(--soft);color:var(--ink);border-color:var(--accent);font-weight:600}
+
+button.btn{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:9px;padding:8px 14px;font-size:13.5px;cursor:pointer;font-family:inherit}
+button.btn:hover{border-color:var(--accent);color:var(--accent)}
+button.btn.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+button.btn.pri:hover{filter:brightness(1.08)}
+button.btn.small{padding:5px 12px;font-size:12.5px}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+pre.out{margin:8px 0 0;padding:10px;background:var(--panel2);border:1px solid var(--line);border-radius:8px;font:12px/1.65 var(--mono);white-space:pre-wrap;word-break:break-word;max-height:38vh;overflow:auto;min-height:80px}
+.metaline{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:11px;color:var(--ink2)}
+.pill{border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:999px;padding:2px 9px;font:11px var(--mono)}
+.warnbox{border-radius:8px;padding:7px 9px;margin-top:6px;font-size:12px;display:none}
+.warnbox.show{display:block}
+.warnbox{background:var(--warn-bg);color:var(--warn);border:1px solid currentColor}
+.warnbox b{font-weight:600}
+details{margin-top:8px;border-top:1px solid var(--line);padding-top:8px}
+summary{font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
+.hintline{font-size:11px;color:var(--ink2);margin-top:6px;line-height:1.7}
+.tasknote{margin-top:10px;padding:8px 10px;border-radius:8px;font-size:12px;background:var(--soft);border:1px solid var(--line);line-height:1.6}
+
+/* ---------- 组装台维度区 ---------- */
+.dim{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:12px}
+.dim-head{display:flex;align-items:baseline;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.dim-head .t{font-weight:700;font-size:14.5px}
+.dim-head .w{font-size:12px;color:var(--ink2)}
+.dim-head .who{font-size:11.5px;padding:1px 8px;border-radius:99px;background:var(--soft);color:var(--ink2)}
+.dim-head .who.you{background:var(--accent-bg);color:var(--accent)}
+.dim-head .who.law{background:var(--law-bg);color:var(--law-ink)}
+.dim-head .lock{margin-left:auto;font-size:11.5px;color:var(--ink2);cursor:pointer;border:1px solid var(--line);border-radius:99px;padding:1px 10px;background:var(--panel2);user-select:none}
+.dim-head .lock.on{color:var(--warn);border-color:var(--warn);background:var(--warn-bg)}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:5px 12px;border-radius:99px;background:var(--soft);font-size:12.5px;cursor:pointer;border:1px solid transparent;user-select:none;transition:all .12s}
+.chip:hover{border-color:var(--ink3)}
+.chip.on{background:var(--ink);color:var(--bg)}
+.chip.sug{background:var(--sug-bg);color:var(--sug);border:1px dashed var(--sug)}
+.chip.sug.on{background:var(--sug);border-style:solid}
+.dim-info{display:none;margin-top:10px;padding:9px 13px;border-radius:8px;background:var(--panel2);border:1px dashed var(--line);font-size:12.5px;color:var(--ink2);line-height:1.7}
+.dim-info b{color:var(--ink)}
+
+/* ---------- 画廊 ---------- */
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(252px,1fr));gap:14px}
+.gcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:0;overflow:hidden;display:flex;flex-direction:column;text-align:left;font-family:inherit;color:var(--ink)}
+.gcard:hover{border-color:var(--accent)}
+.gsw{position:relative;height:112px;overflow:hidden;flex:0 0 auto;cursor:pointer}
+.gsw img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.gsw img.noimg{display:none}
+.gstrips{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;height:8px}
+.gstrips i{flex:1;display:block}
+.gsw .gid{position:absolute;left:10px;top:8px;z-index:3;display:inline-flex;align-items:baseline;gap:1px;font:700 12.5px/1 var(--mono);letter-spacing:1px;color:#fff;background:rgba(0,0,0,.46);border:1px solid rgba(255,255,255,.32);border-radius:999px;padding:5px 10px;cursor:pointer;transition:background .15s}
+.gsw .gid:hover{background:rgba(0,0,0,.74)}
+.gsw .gid em{font-style:normal;font-size:9.5px;opacity:.66;font-weight:400}
+.gsw .gstat{position:absolute;right:8px;top:8px;z-index:2}
+.gstat{font:10px/1 var(--mono);border-radius:4px;padding:3px 6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink2)}
+.gstat.un{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.gstat.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.gbody{padding:10px 12px 8px;flex:1;display:flex;flex-direction:column;min-width:0}
+.gname{font-size:14px;font-weight:650;line-height:1.3}
+.gname em{font-style:normal;font:400 10px var(--mono);color:var(--ink3);margin-left:5px}
+.gkw{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;min-height:42px}
+.gkw span{font:10px/1.6 var(--mono);padding:1px 6px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);color:var(--ink2);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gkw span.law{background:var(--law-bg);color:var(--law-ink);border-color:var(--law-line)}
+.gact{display:flex;gap:6px;padding:8px 12px 10px}
+.gact .mini{flex:1;border-radius:7px;padding:8px 10px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;white-space:nowrap;border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+.gact .mini.p{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.gact .mini.p:hover{filter:brightness(1.1)}
+.gact .mini.use{border-color:var(--accent);color:var(--accent)}
+.gact .mini.use:hover{background:var(--accent-bg)}
+.gal.big{grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+.gal.big .gsw{height:190px}
+.gal.dense{grid-template-columns:repeat(auto-fill,minmax(214px,1fr));gap:10px}
+.gal.dense .gsw{height:84px}
+.gal.dense .gid{font-size:10.5px;padding:3px 7px}
+.gal.dense .gkw{min-height:0}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:10.5px;color:var(--ink2);margin:8px 0}
+.legend span{display:inline-flex;align-items:center;gap:5px}
+.legend i{width:12px;height:7px;border-radius:2px;display:inline-block}
+.warnline{margin:8px 0 10px;padding:10px 12px;border:1px solid var(--warn);border-radius:10px;background:var(--warn-bg);color:var(--warn);font-size:11.5px;line-height:1.75}
+.warnline b{word-break:break-all}
+.empty{padding:30px 10px;text-align:center;color:var(--ink2);font-size:13px;line-height:1.8}
+
+/* 浮层（画廊详情 / 词条抽屉共用遮罩） */
+.mask{position:fixed;inset:0;background:rgba(6,8,11,.68);z-index:80;display:none;align-items:flex-start;justify-content:center;padding:38px 16px;overflow:auto}
+.mask.on{display:flex}
+.sheet{width:100%;max-width:840px;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 18px 50px rgba(0,0,0,.52);max-height:88vh;display:flex;flex-direction:column}
+.sheet .sh{display:flex;align-items:center;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--panel2);border-radius:10px 10px 0 0;position:sticky;top:0;z-index:2}
+.sheet .sh b{font-size:13px}
+.sheet .sh .hint{font:11px var(--mono);color:var(--ink2)}
+.sheet .sh .sp{flex:1}
+.sheet .sbody{padding:11px 12px 14px;overflow:auto}
+
+/* 抽屉（全部词条详情） */
+#dtMask{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.32);display:none}
+#dtMask.on{display:block}
+#dtPanel{position:fixed;top:0;right:0;bottom:0;width:min(460px,94vw);z-index:71;background:var(--panel);border-left:1px solid var(--line);display:none;flex-direction:column;box-shadow:-8px 0 28px rgba(0,0,0,.22)}
+#dtPanel.on{display:flex}
+.dt-hd{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(--line);flex:0 0 auto}
+.dt-hd h3{margin:0;font-size:13.5px;font-weight:600;flex:1}
+.dt-body{flex:1;overflow:auto;padding:12px 14px 32px}
+.dt-h{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:2px}
+.dt-h b{font-size:16px;font-weight:650}
+.dt-en{font-size:11.5px;color:var(--ink2)}
+.dt-kv{margin:0 0 11px}
+.dt-kv-r{display:flex;gap:9px;padding:3px 0;border-bottom:1px solid var(--line);font-size:12px}
+.dt-kv-r:last-child{border-bottom:0}
+.dt-kv-k{flex:0 0 62px;color:var(--ink3)}
+.dt-kv-v{flex:1;min-width:0;word-break:break-word}
+.dt-sub{font-size:11.5px;color:var(--ink2);margin:12px 0 6px;display:flex;align-items:center;gap:6px}
+.dt-sub em{font-style:normal;font-size:10.5px;color:var(--ink3)}
+.dt-box{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.dt-f{display:flex;gap:9px;padding:5px 9px;font-size:12px;border-bottom:1px solid var(--line)}
+.dt-f:last-child{border-bottom:0}
+.dt-fk{flex:0 0 62px;color:var(--ink3)}
+.dt-fv{flex:1;min-width:0;word-break:break-word}
+.dt-note,.dt-none{font-size:11.5px;color:var(--ink2);line-height:1.75;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px}
+.dt-none{color:var(--hard)}
+
+/* ---------- 自定义出图 ---------- */
+.easy-wrap{max-width:1060px;margin:0 auto;padding:18px 18px 48px}
+.easy-grid{display:grid;gap:16px;grid-template-columns:minmax(300px,1fr) minmax(340px,1.15fr);align-items:start}
+@media (max-width:820px){.easy-grid{grid-template-columns:1fr}}
+.easy-left h2,.easy-right h2{font-size:15px;margin:0 0 4px;display:flex;align-items:baseline;gap:8px}
+.easy-left h2 em,.easy-right h2 em{font-style:normal;color:var(--accent);font-size:13px}
+.easy-live{font-size:11px;color:var(--ok);border:1px solid currentColor;border-radius:10px;padding:0 8px;font-weight:400}
+.easy-tip{font-size:12px;color:var(--ink2);margin:0 0 12px}
+.pcard{display:block;width:100%;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 15px;margin-bottom:10px;cursor:pointer;font-family:inherit;color:var(--ink);transition:border-color .12s}
+.pcard:hover{border-color:var(--accent)}
+.pcard.on{border-color:var(--accent);background:var(--soft)}
+.pcard b{display:block;font-size:14.5px;font-weight:650;margin-bottom:4px}
+.pcard .d{display:block;font-size:12.5px;color:var(--ink2);margin-bottom:5px}
+.pcard .c{display:block;font:11px/1.6 var(--mono);color:var(--ink3)}
+.easy-random{width:100%;border:1px dashed var(--line);background:transparent;border-radius:10px;padding:12px;font-size:13.5px;color:var(--ink2);cursor:pointer;font-family:inherit;margin-top:2px}
+.easy-random:hover{border-color:var(--accent);color:var(--accent)}
+.ec-row{display:flex;gap:10px;align-items:center;margin-bottom:10px}
+#linkPaste{width:100%;box-sizing:border-box;font-family:inherit;font-size:13px;line-height:1.7;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;resize:vertical}
+#linkPaste:focus{outline:none;border-color:var(--accent)}
+.parse-out{margin-top:8px;font-size:12.5px;line-height:1.9;color:var(--ink2);background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.bmk-card{margin-top:16px;background:linear-gradient(180deg,var(--soft),var(--card));border:1px solid var(--pri);border-radius:12px;padding:14px 16px}
+.bmk-card h2{font-size:14px;color:var(--pri);display:flex;align-items:center;gap:8px}
+.bmk-card h2 em{font-style:normal;background:var(--pri);color:#fff;border-radius:6px;padding:1px 7px;font-size:12px}
+.bmk-card p{font-size:12.5px;color:var(--ink2);line-height:1.8;margin:8px 0}
+.bmk-steps{margin:8px 0 10px;padding-left:20px;font-size:12.5px;color:var(--ink2);line-height:2}
+.bmk-steps kbd{font-family:inherit;background:var(--card);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:0 5px;font-size:11px;color:var(--ink)}
+.bmk-btnrow{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:4px 0 2px}
+.bmk-btn{display:inline-flex;align-items:center;gap:6px;background:var(--pri);color:#fff;border-radius:10px;padding:10px 18px;font-size:13.5px;font-weight:600;cursor:grab;text-decoration:none;box-shadow:0 2px 8px rgba(0,0,0,.18);user-select:none}
+.bmk-btn:active{cursor:grabbing}
+.bmk-card code{background:var(--soft);border:1px solid var(--line);border-radius:6px;padding:1px 5px}
+.mini-btn{font-size:11.5px;padding:2px 9px;border:1px solid var(--pri);color:var(--pri);background:var(--card);border-radius:6px;cursor:pointer}
+.mini-btn:hover{background:var(--pri);color:#fff}
+.parse-out b{color:var(--ink)}
+.ec-row>label{flex:0 0 62px;font-size:12.5px;color:var(--ink2)}
+.ec-row input[type=text]{flex:1}
+.easy-copy{display:block;width:100%;border:0;border-radius:9px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:8px;background:var(--soft);color:var(--ink);border:1px solid var(--line)}
+.easy-copy.pri{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.easy-copy.pri:hover{filter:brightness(1.06)}
+.easy-copy:hover{border-color:var(--accent)}
+.platnote{margin:0 0 10px;padding:9px 12px;border-radius:8px;background:var(--warn-bg);color:var(--warn);font-size:12px;line-height:1.7;border:1px solid currentColor;display:none}
+.platnote.show{display:block}
+
+/* ---------- 抽卡 ---------- */
+.gaca{border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--panel)}
+.gaca .gh{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.gaca .gh b{font-size:13.5px}
+.gaca .gp{font:11.5px/1.7 var(--mono);color:var(--ink2);max-height:88px;overflow:auto;background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;margin-top:6px}
+
+/* ---------- 全部词条（并入合成器页） ---------- */
+.dtab{border:1px solid var(--line);background:var(--panel2);color:var(--ink2);border-radius:9px;padding:6px 12px;font-size:12.5px;cursor:pointer;white-space:nowrap}
+.dtab.on{background:var(--soft);color:var(--ink);border-color:var(--accent);font-weight:600}
+.elist{margin-top:6px;max-height:56vh;overflow:auto;border:1px solid var(--line);border-radius:8px}
+.erow{display:flex;gap:10px;align-items:center;padding:9px 12px;border-bottom:1px solid var(--line)}
+.erow:last-child{border-bottom:0}
+.erow:hover{background:var(--soft)}
+.erow .eid{font:11.5px var(--mono);color:var(--accent);flex:none}
+.erow .enm{flex:1;min-width:0;cursor:pointer}
+.erow .enm b{font-weight:600;font-size:13px}
+.erow .enm b:hover{color:var(--accent)}
+.erow .enm p{margin:1px 0 0;color:var(--ink2);font-size:11.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.erow .add{border:1px solid var(--line);background:var(--panel2);color:var(--ink2);border-radius:8px;font-size:12px;padding:5px 12px;flex:none;cursor:pointer}
+.erow .add:hover{border-color:var(--accent);color:var(--accent)}
+.erow .add.on{border-color:var(--accent);color:var(--accent);background:var(--accent-bg);font-weight:600}
+
+/* ---------- 风格配色 ---------- */
+.pair-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:13px}
+.pair{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px}
+.pair h3{font-size:13.5px;margin:0 0 2px;display:flex;align-items:baseline;gap:6px}
+.pair h3 em{font-style:normal;font:10px var(--mono);color:var(--ink3)}
+.pair .pen{font-size:11px;color:var(--ink2);margin-bottom:8px;font-family:var(--mono)}
+.swrow{display:flex;gap:6px;margin-bottom:9px}
+.sw{flex:1;cursor:pointer;border:1px solid var(--line);border-radius:8px;overflow:hidden;background:var(--panel2)}
+.sw .blk{height:34px;display:block}
+.sw .nm{display:block;font-size:9.5px;color:var(--ink2);padding:2px 4px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sw:hover{border-color:var(--accent)}
+.pair .prow{display:flex;gap:6px;align-items:baseline;flex-wrap:wrap;margin:5px 0;font-size:11px}
+.pair .pk{flex:0 0 44px;color:var(--ink2)}
+.pair .ptags{display:flex;gap:4px;flex-wrap:wrap}
+.ptag{background:var(--panel2);border:1px solid var(--line);color:var(--ink2);font-size:10.5px;padding:1.5px 7px;border-radius:12px}
+.pair .pnote{font-size:11.5px;color:var(--ink2);line-height:1.7;margin-top:7px}
+.pair .pavoid{font-size:11.5px;color:var(--hard);line-height:1.6;margin-top:3px}
+
+/* ---------- 框架与体检 ---------- */
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{padding:7px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--ink2);font-weight:500;font-size:11.5px}
+td.c{font:11.5px var(--mono);color:var(--accent)}
+.note{background:var(--warn-bg);border-left:2px solid var(--warn);padding:11px 14px;border-radius:0 7px 7px 0;font-size:12.5px;color:var(--ink2);margin-top:14px;line-height:1.7}
+.note b{color:var(--warn)}
+.lvl{display:inline-block;font:10px/1.6 var(--mono);border-radius:4px;padding:0 6px;border:1px solid var(--line);background:var(--panel2);color:var(--ink2)}
+.md h2{font-size:15px;margin:18px 0 8px}
+.md h2:first-child{margin-top:0}
+.md ul{padding-left:20px}
+.md li{margin:4px 0}
+.md pre{background:var(--panel2);color:var(--ink);padding:14px;border-radius:8px;font-size:12px;overflow-x:auto;line-height:1.6;border:1px solid var(--line)}
+
+/* ---------- 编码工作台 ---------- */
+.cd-inner{max-width:1180px;margin:0 auto;padding:20px 22px 40px}
+.cd-hd{display:flex;align-items:baseline;gap:10px;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.cd-hd h2{font-size:16px;margin:0}
+.cd-hd .hint{font-size:11.5px;color:var(--ink2)}
+.plan{border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-bottom:12px;background:var(--panel)}
+.plan .ph{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.plan .ph b{font-size:14px}
+.plan .ph .m{font:11px var(--mono);color:var(--ink2)}
+.plan .pp{font:11.5px/1.7 var(--mono);color:var(--ink2);background:var(--panel2);border:1px solid var(--line);border-radius:7px;padding:8px 10px;max-height:110px;overflow:auto}
+.plan .pw{margin-top:6px}
+.protectbar{margin:0 0 14px;padding:10px 13px;border-radius:9px;background:var(--warn-bg);color:var(--warn);font-size:12px;line-height:1.7;border:1px solid currentColor}
+
+/* ---------- toast ---------- */
+#toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);z-index:90;background:var(--ink);color:var(--bg);font-size:13px;padding:11px 18px;border-radius:22px;opacity:0;pointer-events:none;transition:opacity .18s;max-width:86vw;display:flex;gap:12px;align-items:center}
+#toast.on{opacity:.95;pointer-events:auto}
+#toast .t-act{border:0;background:var(--accent);color:var(--accent-ink);font-size:12.5px;font-weight:600;padding:5px 12px;border-radius:14px;cursor:pointer;font-family:inherit;flex:none}
+#toast .t-act:hover{filter:brightness(1.08)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="hd">
+    <h1>电商做图提示词库<span class="tag">ECOM PROMPT FORGE</span></h1>
+    <span class="sub">商品 · 平台 · 营销目的 · 图片类型 · 视觉风格 —— 多维检索、组合、复用、扩展</span>
+    <span class="spacer"></span>
+    <span class="stamp" id="stamp"></span>
+  </div>
+  <div class="policy">
+    <span class="ptag">三条策略</span>
+    <span class="tx"><b>商品保护 · 平台铁律 · 信息分级</b>
+      <span class="sub2">商品外形/比例/颜色/结构/包装文字/品牌标识以参考图为准，不编造价格、参数、认证与功效；平台规格层不可为风格让步（Amazon 主图纯白禁文字是最高频铁律）；seen 视觉观察与 test 模型实测分开标 —— 案例 tested=false 就是没跑过，不吹牛。</span>
+    </span>
+  </div>
+  <div class="inv" id="inv"></div>
+  <div class="gapline" id="gapLine"></div>
+</header>
+
+<nav class="main-nav" id="modeTabs">
+  <button class="on" data-mode="gallery">★ 示例画廊<span class="n" id="nGallery"></span></button>
+  <button data-mode="custom">自定义出图</button>
+  <button data-mode="linkgrab">链接出图</button>
+  <button data-mode="synth">提示词合成器</button>
+  <button data-mode="gacha">抽卡</button>
+  <button data-mode="pairs">风格配色搭配<span class="n" id="nPairs"></span></button>
+  <button data-mode="framework">框架与体检</button>
+  <button data-mode="desk">编码工作台</button>
+</nav>
+<div id="toast"></div>
+
+<!-- ============ 示例画廊 ============ -->
+<main id="v-gallery" class="view on">
+  <div class="cd-inner">
+    <div class="cd-hd">
+      <h2>示例画廊</h2>
+      <span class="hint">看卡选配方 · 点图看详情 · 点编号复制配图文件名 · 卡上一键复制</span>
+    </div>
+    <div class="warnline" id="galUnclaimed" style="display:none"></div>
+    <input type="search" id="galQ" placeholder="搜索：编号 / 名称 / 验证点…" autocomplete="off" style="max-width:340px;margin-bottom:10px">
+    <div class="filters" id="galFilters"></div>
+    <div class="legend">
+      <span><i style="background:#c8552c"></i>色卡 = 该配方风格在「风格配色搭配」里的登记色（不是成品图）</span>
+      <span><i style="background:#2e7d5b"></i>已实测</span>
+      <span><i style="background:#b3541e"></i>未实测</span>
+    </div>
+    <div class="btns" style="margin-bottom:12px">
+      <button class="btn small" id="galBig">大图密度</button>
+      <button class="btn small" id="galDense">紧凑密度</button>
+    </div>
+    <div class="gal" id="galWrap"></div>
+  </div>
+  <div class="mask" id="galMask"><div class="sheet" id="galSheet"></div></div>
+</main>
+
+<!-- ============ 自定义出图 ============ -->
+<main id="v-custom" class="view easy-wrap">
+  <div class="easy-grid">
+    <section class="easy-left">
+      <h2><em>①</em> 快速选题</h2>
+      <p class="easy-tip">选一个高频场景，配方自动载入，成品在右边直接生成、复制即用。</p>
+      <div id="presetCards"></div>
+      <button class="easy-random" id="easyRandom">🎲 随机来一张</button>
+
+      <h2 style="margin-top:18px"><em>②</em> 商品信息 <span class="easy-live">选填 · 填了更准</span></h2>
+      <div class="ec-row"><label>商品名称</label><input type="text" id="cName" placeholder="如：noise-cancelling headphones"></div>
+      <div class="ec-row"><label>核心卖点</label><input type="text" id="cSelling" placeholder="如：40h battery, active noise cancelling"></div>
+      <div class="ec-row"><label>目标人群</label><input type="text" id="cAudience" placeholder="如：commuters and frequent travelers"></div>
+      <p class="easy-tip" style="margin-top:6px">商品信息会写进提示词的「featured product」段；<b>商品保护规则</b>在完整版里固定附加。中文也能写，引擎原样带入。</p>
+
+      <h2 style="margin-top:18px"><em>③</em> 发布平台</h2>
+      <p class="easy-tip">平台是铁律层：先钉死尺寸与禁区，再谈风格。</p>
+      <div class="filters" id="specChips" style="max-height:150px"></div>
+    </section>
+    <section class="easy-right">
+      <h2><em>④</em> 出成品 <span class="easy-live">改选项即时更新</span></h2>
+      <div class="platnote" id="platNote"></div>
+      <div class="warnbox" id="customWarn"></div>
+      <pre class="out" id="easyOut"></pre>
+      <div class="btns" style="margin-top:10px">
+        <button class="easy-copy pri" id="easyCopyPrompt">复制提示词</button>
+        <button class="easy-copy" id="easyCopyFull">复制完整版</button>
+      </div>
+      <p class="easy-tip" style="margin-top:10px">成品在本页直接出。想细调十二个维度、换负面词 / 母版 / 变更清单，再去「提示词合成器」。</p>
+      <div class="btns">
+        <button class="easy-copy pri" id="easyRandom2">🎲 随机来一张</button>
+        <button class="easy-copy" id="toSynth">去合成器细调 →</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<!-- ============ 链接出图 ============ -->
+<main id="v-linkgrab" class="view easy-wrap">
+  <div class="easy-grid">
+    <section class="easy-left">
+      <h2><em>①</em> 商品链接 / SKU</h2>
+      <div class="ec-row"><input type="text" id="linkUrl" placeholder="商品链接，或纯 SKU / ASIN，如 https://item.jd.com/1000123.html"></div>
+      <div class="ec-row" id="skuPlatRow" style="display:none"><label>平台</label><select id="skuPlat" style="flex:1"><option value="jd">京东 SKU</option><option value="taobao">淘宝 / 天猫商品 ID</option></select></div>
+      <div class="btns"><button class="easy-copy pri" id="btnFetch">读取商品信息</button></div>
+      <div id="fetchNote" class="parse-out" style="display:none"></div>
+      <p class="easy-tip" style="margin-top:8px">读取走公共跨域通道拉商品页。<b>淘宝 / 京东 / Amazon 都有登录墙和反爬，公共代理基本拉不到——这是常态，不是坏了</b>。真正的解法是下面的<b>书签一键抓取</b>（用你自己的登录态，一点就复制），或直接把链接发到对话里让我读。</p>
+
+      <div class="bmk-card" id="bmkCard">
+        <h2><em>★</em> 读不到？装个书签，一键抓商品信息</h2>
+        <p>公共代理过不了平台的登录墙，但你自己的浏览器可以。装一次，以后在商品页点一下就自动把<b>标题、卖点、价格、店铺</b>复制好：</p>
+        <ol class="bmk-steps">
+          <li>按 <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>B</kbd> 显示书签栏（Edge / Chrome 一样）</li>
+          <li>把右边这个按钮<strong>直接拖到书签栏</strong>，名字会变成「抓商品信息」</li>
+          <li>打开商品页 → 点书签 → 自动复制 → 回到本页粘进 ② 解析框，点「解析」</li>
+        </ol>
+        <div class="bmk-btnrow">
+          <a id="bmklet" class="bmk-btn" draggable="true" href="javascript:void(0)">🔖 抓商品信息（拖我上书签栏）</a>
+          <span class="easy-tip" style="margin:0">拖不动？点这里 <button id="bmkCopyCode" class="mini-btn">复制书签代码</button> 再手动添加书签，或把商品链接<b>发到对话里</b>让我读</span>
+        </div>
+        <p class="easy-tip" style="margin-top:8px">只用你自己的浏览器会话读当前页，抓取结果只进剪贴板，<b>不发任何请求、不存任何数据</b>。Amazon 等部分站点 ① 也能直接读成。</p>
+      </div>
+
+      <div id="pasteFallback" style="margin-top:14px">
+        <h2><em>②</em> 粘贴解析 <span class="easy-live">兜底主力 · 百分百可用</span></h2>
+        <textarea id="linkPaste" rows="3" placeholder="粘贴商品标题、卖点、分享文案。例：无线蓝牙耳机 主动降噪 40小时续航 通勤耳机"></textarea>
+        <div class="btns" style="margin-top:8px"><button class="easy-copy" id="btnParse2">解析</button></div>
+        <p class="easy-tip" style="margin-top:6px">粘贴<b>标题和卖点文字</b>（书签抓取的、或从商品页手动复制的都行）——只粘链接是解析不出东西的。也可以把链接发到对话里，我帮你读出来再给你成品词。</p>
+      </div>
+
+      <h2 style="margin-top:18px"><em>③</em> 识别结果</h2>
+      <div id="grabOut" class="parse-out" style="display:none"></div>
+      <div class="btns" style="margin-top:8px"><button class="easy-copy pri" id="btnApplyGrab" style="display:none">载入配方并出词 →</button></div>
+      <p class="easy-tip" style="margin-top:6px">解析纯本地完成：品类词典识别品类 / 人群 / 卖点，平台规则建议规格，主图与详情各配一套配方。</p>
+    </section>
+    <section class="easy-right">
+      <h2><em>④</em> 出成品 <span class="easy-live">主图 + 详情 两份词面</span></h2>
+      <div class="platnote" id="grabNote"></div>
+      <div class="warnbox" id="grabWarn"></div>
+      <div class="easy-live" style="display:inline-flex;margin:10px 0 6px">主图</div>
+      <pre class="out" id="grabMain">← 左侧读取或解析商品信息后，主图词面出现在这里</pre>
+      <div class="btns" style="margin-top:6px"><button class="easy-copy pri" id="btnCopyGrabMain">复制主图提示词</button></div>
+      <div class="easy-live" style="display:inline-flex;margin:14px 0 6px">详情长图</div>
+      <pre class="out" id="grabDetail">← 详情走长图分镜配方（一屏一个论点），自动沿用同品类</pre>
+      <div class="btns" style="margin-top:6px"><button class="easy-copy" id="btnCopyGrabDetail">复制详情提示词</button></div>
+      <p class="easy-tip" style="margin-top:10px">商品信息已共享给合成器，想换负面词 / 母版 / 细调十二维：</p>
+      <div class="btns"><button class="easy-copy" id="grabToSynth">去合成器细调 →</button></div>
+    </section>
+  </div>
+</main>
+
+<!-- 链接出图按钮的早期挂桩：本页静态 HTML 先渲染，主脚本在 </body> 前才执行。
+     若在主脚本初始化完成前就点击（或初始化中途出错），onclick 还是空的 =
+     点了没反应。这里先挂一个会说人话的桩，主脚本就绪后会自动替换成真处理函数。 -->
+<script>
+(function(){
+  function stub(){
+    if (window.__ecomReady) return; // 主脚本已接管（onclick 已被替换），双保险
+    var box = document.getElementById("grabOut");
+    if (box) {
+      box.style.display = "block";
+      box.innerHTML = "⏳ 页面还在初始化，按钮要等一秒才能用。<br>若一直停留在这句：按 <b>Ctrl+F5</b> 硬刷新；刷新也没用就把这个现象告诉我。";
+    }
+  }
+  ["btnParse2", "btnFetch", "btnApplyGrab", "bmkCopyCode"].forEach(function(id){
+    var b = document.getElementById(id);
+    if (b) b.onclick = stub;
+  });
+})();
+</script>
+
+<!-- ============ 提示词合成器 ============ -->
+<main class="wrap view" id="v-synth">
+  <section class="col">
+    <h2>配方盘 <span class="hint" id="trayHint"></span></h2>
+    <div class="body">
+      <p class="hintline" style="margin:0 0 10px">三步出词：<b>① 产出类型 → ② 品类方向 → ③ 发布平台</b>，右侧成品即出；其余维度由「按建议补全」代管，进阶可调。</p>
+      <div class="row" style="flex-wrap:wrap;gap:5px">
+        <label class="lbl">快速开始</label>
+        <span id="presets" style="display:flex;flex-wrap:wrap;gap:4px"></span>
+      </div>
+      <div class="row">
+        <label class="lbl">商品名称</label>
+        <input type="text" id="sName" placeholder="写进提示词的 featured product 段">
+      </div>
+      <div class="row">
+        <label class="lbl" title="你自己的句子，原样追加在词面末尾，不占维度位置、不参与冲突裁决">原话</label>
+        <input type="text" id="freeText" placeholder="如：清晨薄雾的孤独感（追加在末尾）">
+      </div>
+      <div class="row">
+        <label class="lbl" title="视觉强调强度：高 = 质感锤与视觉冲击词段；低 = 干净自然呈现。平台铁律永远优先">强度</label>
+        <input type="range" id="strength" min="0.2" max="1.6" step="0.05" value="1" style="flex:1">
+        <span class="pill" id="strengthV">1.00</span>
+      </div>
+      <div class="btns">
+        <button class="btn" id="btnSug">按建议补全派生位</button>
+        <button class="btn" id="btnRandom">随机灵感（锁定的维度不变）</button>
+        <button class="btn" id="btnReset">清空</button>
+      </div>
+      <div class="btns" id="opBar">
+        <span style="font-size:12.5px;color:var(--ink2);align-self:center">变形算子：</span>
+        <select id="swapSel" style="width:auto"><option value="">变形 · 换品类保视觉…</option></select>
+        <span id="opBtns" style="display:contents"></span>
+      </div>
+      <div id="tray" style="margin-top:12px"></div>
+      <details class="ebrow" id="entriesBox" style="margin-top:16px;border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel)">
+        <summary style="cursor:pointer;user-select:none"><b>全部词条</b><span class="hint" id="pickHint" style="margin-left:8px"></span></summary>
+        <div class="filters" id="dimTabs" style="max-height:none;margin-top:12px"></div>
+        <input type="search" id="eq" placeholder="搜索：编号 / 名称 / 英文词面 / 备注…" autocomplete="off" style="max-width:420px;margin-top:8px">
+        <div class="elist" id="eList" style="margin-top:8px"></div>
+        <p class="hintline">点条目名字看详情与单条提示词；点「加入」直接进上方配方盘，成品即时更新。模型与来源是知识库，只可查不可加入。</p>
+      </details>
+    </div>
+  </section>
+  <section class="col sticky">
+    <h2>成品 <span class="hint">复制即用</span></h2>
+    <div class="out-tabs filters" id="outTabs" style="max-height:none">
+      <span class="fchip on" data-out="tags">视觉指令</span>
+      <details class="out-more" id="outMore">
+        <summary>更多格式 ▾</summary>
+        <div class="out-more-body">
+          <span class="fchip" data-out="neg">负面词</span>
+          <span class="fchip" data-out="zh">中文配方</span>
+          <span class="fchip" data-out="master">商品信息母版</span>
+          <span class="fchip" data-out="changes">变更清单</span>
+          <span class="fchip" data-out="json">配方 JSON</span>
+        </div>
+      </details>
+    </div>
+    <div class="body">
+      <div class="warnbox" id="warnBox"></div>
+      <pre class="out" id="out"></pre>
+      <div class="metaline" id="meta"></div>
+      <div class="btns">
+        <button class="btn pri" id="btnCopy">复制当前</button>
+        <button class="btn" id="btnCopyRun" title="视觉指令 + 按目标平台给出的规格参数建议，粘贴到出图工具即可用">复制出图版（带参数）</button>
+        <details class="out-more" id="copyMore" style="width:100%">
+          <summary>分享 / 备份 ▾</summary>
+          <div class="btns" style="margin-top:8px">
+            <button class="btn" id="btnCopyBoth">复制提示词+负面词</button>
+            <button class="btn" id="btnSnap">生成分享码</button>
+            <button class="btn" id="btnLoad">载入分享码</button>
+            <button class="btn" id="btnMd">下载 .md</button>
+          </div>
+          <p class="hintline">分享码以 <code>ECX1.</code> 开头，含 12 维选择 + 原话 + 强度 + 商品信息，粘回「载入」即可还原。</p>
+        </details>
+      </div>
+      <div class="history" id="history"></div>
+    </div>
+  </section>
+</main>
+
+<!-- ============ 分享码浮层 ============ -->
+<div class="mask" id="shareMask"><div class="sheet" id="shareSheet"></div></div>
+
+<!-- ============ 词条详情抽屉（合成器页「全部词条」用） ============ -->
+<div id="dtMask"></div>
+<aside id="dtPanel"></aside>
+
+<!-- ============ 抽卡 ============ -->
+<main id="v-gacha" class="view">
+  <div class="cd-inner">
+    <div class="cd-hd">
+      <h2>抽卡</h2>
+      <span class="hint">十二维各抽一条，凑出你没见过的组合；合成器里锁定的维度会带过来</span>
+    </div>
+    <div class="panel">
+      <div class="btns" style="margin-top:0">
+        <button class="btn pri" id="gaRoll1">抽 1 组</button>
+        <button class="btn" id="gaRoll4">抽 4 组</button>
+        <button class="btn" id="gaRoll8">抽 8 组铺开</button>
+        <button class="btn" id="gaRandomCase" title="从案例库随机抽一张，在下方直接出卡（不动当前配方）">🎲 随机来一张（案例）</button>
+        <button class="btn" id="gaClear">收起</button>
+      </div>
+      <p class="hintline">不是同一提示词换 seed —— 那是同一张图看六遍。冲突组合自动重抽规避；锁定维度见合成器各维度右上角。</p>
+      <div id="gaOut" style="margin-top:12px"></div>
+    </div>
+  </div>
+</main>
+
+<!-- ============ 风格配色搭配 ============ -->
+<main id="v-pairs" class="view">
+  <div class="cd-inner">
+    <div class="cd-hd">
+      <h2>风格 × 配色 搭配参考</h2>
+      <span class="hint">点色块复制 hex · 每个风格一套登记色，换风格时整套色一起换</span>
+    </div>
+    <input type="search" id="pairQ" placeholder="筛选：风格名、色名、品类、要点…" autocomplete="off" style="max-width:340px;margin-bottom:12px">
+    <div class="pair-grid" id="pairGrid"></div>
+  </div>
+</main>
+
+<!-- ============ 框架与体检 ============ -->
+<main id="v-framework" class="view">
+  <div class="cd-inner" id="fwBody"></div>
+</main>
+
+<!-- ============ 编码工作台 ============ -->
+<main id="v-desk" class="view">
+  <div class="cd-inner">
+    <div class="cd-hd">
+      <h2>编码工作台</h2>
+      <span class="hint" id="cdHint"></span>
+    </div>
+    <div class="protectbar">🛡 <b>商品保护规则（批量出图生命线）</b>：以商品参考图为准，保持外形、比例、颜色、结构、包装文字、品牌标识一致；不得改变设计，不得添加不存在的配件、功能、认证或品牌信息；价格、优惠、参数、评价、认证、功效未提供的一律不编造。</div>
+    <div class="panel">
+      <h2>① 一个商品，五张图型（SKU 批量出图）</h2>
+      <div class="hint">填一次商品信息，一次拿到白底主图 / 场景化主图 / 卖点详情图 / 促销海报 / 社媒种草图五份提示词。平台、品类、风格、材质四项选择覆盖全部五张 —— 批量最怕一套错五张全错，所以每张自带冲突检查。</div>
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <input type="text" id="dName" placeholder="商品名称" style="flex:1;min-width:180px">
+        <input type="text" id="dSelling" placeholder="核心卖点" style="flex:1;min-width:180px">
+        <input type="text" id="dAudience" placeholder="目标人群" style="flex:1;min-width:160px">
+      </div>
+      <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px">
+        <select id="dSpec" style="width:auto"></select>
+        <select id="dCat" style="width:auto"></select>
+        <select id="dStyle" style="width:auto"></select>
+        <select id="dMat" style="width:auto"></select>
+      </div>
+      <div id="planCards" style="margin-top:14px"></div>
+    </div>
+    <div class="panel">
+      <h2>② 编号速查</h2>
+      <div class="hint">案例 CS-xx / 模板 TP-xx / 规格 SP-xx / 任意词条编号，输入即出完整词面。</div>
+      <div class="row" style="flex-wrap:wrap;gap:8px">
+        <input type="text" id="lookupInput" placeholder="如 CS-01 / TP-03 / SP-08 / FO-01" style="max-width:260px">
+        <button class="btn" id="lookupBtn">查</button>
+        <span id="lookupQuick" style="display:flex;gap:4px;flex-wrap:wrap"></span>
+      </div>
+      <div id="lookupOut" style="margin-top:10px"></div>
+    </div>
+  </div>
+</main>
+
+<script>
+(function(){
+  var D = window.ECOM_DATA, E = window.ECOM;
+  if (!D || !E) {
+    // 静态 HTML 先渲染、主脚本后执行：assets/data-bundle.js 或 assets/engine.js
+    // 没加载上时，页面看着完全正常但所有按钮都是死的——用户只会觉得"点了没反应"。
+    // 所以这里必须显式报出来，并把任何按钮点击导向一句人话。
+    var bar = document.createElement("div");
+    bar.id = "loadFailBar";
+    bar.setAttribute("style", "position:fixed;left:0;right:0;top:0;z-index:9999;background:#b3541e;color:#fff;font:14px/1.7 system-ui,sans-serif;padding:10px 16px;box-shadow:0 2px 8px rgba(0,0,0,.25)");
+    bar.textContent = "⚠ 页面脚本没有加载成功（assets/data-bundle.js / assets/engine.js 没读到）——所以点任何按钮都不会有反应。请确认 assets 文件夹和 index.html 在同一目录里一起打开，然后按 Ctrl+F5 硬刷新。";
+    document.body.appendChild(bar);
+    document.addEventListener("click", function(ev){
+      var t = ev.target;
+      if (t && t.closest && t.closest("button")) {
+        alert("页面脚本没有加载成功，按钮暂不可用。\n请确认 assets/ 文件夹与 index.html 在同一目录，然后 Ctrl+F5 硬刷新。");
+      }
+    }, true);
+    return;
+  }
+  var DIMS = E.DIM_KEYS;
+  var ZH = {};
+  DIMS.forEach(function(d){ ZH[d] = D[d].zh; });
+  var sel = {}, lockSet = {}, freeText = "", strength = 1;
+  var product = { name: "", selling: "", audience: "" };
+  var outTab = "tags";
+
+  /* ---------- 工具 ---------- */
+  function $(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return { "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#39;" }[c];
+    });
+  }
+  function el(tag, cls, text){
+    var e = document.createElement(tag);
+    if (cls) e.className = cls;
+    if (text != null) e.textContent = text;
+    return e;
+  }
+  var toastTimer;
+  function toast(msg, actLabel, actFn){
+    var t = $("toast");
+    t.innerHTML = "";
+    t.appendChild(document.createTextNode(msg));
+    if (actLabel) {
+      var b = el("button", "t-act", actLabel);
+      b.onclick = function(){ hideToast(); if (actFn) actFn(); };
+      t.appendChild(b);
+    }
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(hideToast, 3200);
+  }
+  function hideToast(){ $("toast").classList.remove("show"); }
+  function copyText(text, done){
+    function ok(){ toast(done || "已复制"); }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(ok, function(){ fallbackCopy(text); ok(); });
+    } else { fallbackCopy(text); ok(); }
+  }
+  function fallbackCopy(text){
+    var ta = document.createElement("textarea");
+    ta.value = text; document.body.appendChild(ta); ta.select();
+    try { document.execCommand("copy"); } catch(e){}
+    document.body.removeChild(ta);
+  }
+  function warnHtml(ws){
+    return ws.map(function(w){
+      return "<b>[" + esc(w.verdict) + "]</b> " + esc(w.a) + " × " + esc(w.b) + " —— " + esc(w.why);
+    }).join("<br>");
+  }
+  function setWarn(boxId, ws){
+    var b = $(boxId);
+    if (ws && ws.length) { b.innerHTML = warnHtml(ws); b.classList.add("show"); }
+    else { b.innerHTML = ""; b.classList.remove("show"); }
+  }
+  // 完整版：视觉指令 + 商品保护规则 + 负面词
+  function fullVersion(selObj, prod){
+    var r = E.composeFull(selObj, prod);
+    var parts = [r.prompt];
+    if (prod && (prod.name || prod.selling || prod.audience)) {
+      parts.push("", "[Product protection rules]", E.PROTECT_EN);
+    }
+    parts.push("", "[Negative prompt]", E.NEGATIVE);
+    return parts.join("\n");
+  }
+  function masterText(selObj, prod){
+    return E.masterTemplate(selObj, prod).map(function(sec){
+      return "## " + sec.h + "\n" + sec.lines.map(function(l){ return "- " + l; }).join("\n");
+    }).join("\n\n");
+  }
+
+  /* ---------- 头部库存（现算） ---------- */
+  var s = E.stats(), g = E.gaps();
+  var unusedN = g.unusedByCaseOrTpl.reduce(function(a,x){ return a + x.unused.length; }, 0);
+  $("stamp").innerHTML = "数据现算 · 离线双击即用";
+  $("inv").innerHTML =
+    DIMS.map(function(d){ return "<b>" + D[d].items.length + "</b> " + esc(ZH[d]); }).join(" · ") +
+    " · 模板 <b>" + D.templates.items.length + "</b> · 案例 <b>" + D.cases.items.length +
+    "</b> · 配色 <b>" + s.palettes + "</b> · 冲突 <b>" + s.conflicts + "</b> · 理论组合 <b>" + s.combos.toLocaleString() + "</b>";
+  $("gapLine").textContent =
+    "覆盖缺口：" + g.untestedCases + "/" + D.cases.items.length + " 案例未实测 · " +
+    unusedN + " 条目未被案例或模板引用（明细见「框架与体检」）";
+  $("nGallery").textContent = D.cases.items.length + D.templates.items.length;
+  $("nPairs").textContent = s.palettes;
+
+  /* ---------- 页签 ---------- */
+  var navBtns = Array.prototype.slice.call(document.querySelectorAll("#modeTabs button"));
+  function show(mode){
+    navBtns.forEach(function(b){ b.classList.toggle("on", b.dataset.mode === mode); });
+    document.querySelectorAll("main.view").forEach(function(v){ v.classList.remove("on"); });
+    var v = $("v-" + mode);
+    if (v) v.classList.add("on");
+    window.scrollTo(0, 0);
+  }
+  navBtns.forEach(function(b){ b.onclick = function(){ show(b.dataset.mode); }; });
+
+  /* ============================================================
+   * 共享配方操作（合成台 / 自定义 / 画廊 / 抽卡 / 工作台共用）
+   * ============================================================ */
+  function currentLock(){
+    var lock = {};
+    DIMS.forEach(function(d){ if (lockSet[d] && sel[d]) lock[d] = sel[d]; });
+    return lock;
+  }
+  function loadSel(next){
+    DIMS.forEach(function(d){ sel[d] = next[d] || null; });
+    refreshAll();
+  }
+  function refreshAll(){
+    renderSynthChips(); renderSynthOut();
+    customRender();
+    renderEntries();
+  }
+
+  /* ============================================================
+   * 提示词合成器
+   * ============================================================ */
+  var trayEl = $("tray"), infoEl = {};
+  var CORE_STEPS = { forms: "①", categories: "②", specs: "③" };
+  var advBox = el("details", "dim-adv");
+  advBox.innerHTML = "<summary>进阶微调（营销目标 / 场景 / 风格 / 光线…，可不动）</summary>";
+  DIMS.forEach(function(d){
+    var sec = el("div", "dim"); sec.id = "dim-" + d;
+    var head = el("div", "dim-head");
+    head.innerHTML = (CORE_STEPS[d] ? '<span class="step">' + CORE_STEPS[d] + '</span>' : "") +
+      '<span class="t">' + esc(ZH[d]) + '</span>' +
+      '<span class="who ' + whoClass(d) + '">' + esc(D[d].who || "") + '</span>' +
+      '<span class="w">' + esc(D[d].decides || "") + '</span>';
+    var lock = el("span", "lock", "🔓 随机时锁定");
+    lock.title = "锁定后，随机灵感不会改动这个维度";
+    lock.onclick = function(){
+      lockSet[d] = !lockSet[d];
+      lock.classList.toggle("on", !!lockSet[d]);
+      lock.textContent = lockSet[d] ? "🔒 已锁定" : "🔓 随机时锁定";
+    };
+    head.appendChild(lock);
+    var chips = el("div", "chips");
+    D[d].items.forEach(function(it){
+      var c = el("span", "chip");
+      c.dataset.id = it.id; c.dataset.dim = d;
+      c.textContent = it.id.replace(/^[A-Z]{2}-/, "") + " " + it.zh;
+      c.title = it.id + " · " + (it.note || it.prompt);
+      c.onclick = function(){ toggle(d, it.id); };
+      chips.appendChild(c);
+    });
+    var info = el("div", "dim-info");
+    sec.appendChild(head); sec.appendChild(chips); sec.appendChild(info);
+    if (CORE_STEPS[d]) trayEl.appendChild(sec);
+    else advBox.appendChild(sec);
+    infoEl[d] = info;
+  });
+  trayEl.appendChild(advBox);
+  function whoClass(d){
+    var w = D[d].who || "";
+    if (w.indexOf("你") === 0) return "you";
+    if (w.indexOf("平台") === 0) return "law";
+    return "";
+  }
+  function chipEl(dim, id){
+    return document.querySelector('.chip[data-dim="' + dim + '"][data-id="' + id + '"]');
+  }
+  function renderSynthChips(){
+    document.querySelectorAll(".chip.sug").forEach(function(c){ c.classList.remove("sug"); });
+    DIMS.forEach(function(d){
+      document.querySelectorAll('.chip[data-dim="' + d + '"]').forEach(function(c){
+        c.classList.toggle("on", c.dataset.id === sel[d]);
+      });
+    });
+    var f = sel.forms && E.index.forms[sel.forms];
+    if (f && f.suggest) {
+      f.suggest.forEach(function(id){
+        var c = chipEl(E.dimOf(id), id);
+        if (c && !c.classList.contains("on")) c.classList.add("sug");
+      });
+    }
+    $("trayHint").textContent = "已选 " + DIMS.filter(function(d){ return sel[d]; }).length + "/12 维";
+    updateInfo();
+  }
+  function updateInfo(){
+    DIMS.forEach(function(d){
+      var elx = infoEl[d], html = "";
+      var it = sel[d] && E.index[d][sel[d]];
+      if (it && d === "forms" && it.children) {
+        html = "<b>二级目录（导航用，不进提示词）：</b>" + esc(it.children.join("　·　"));
+      } else if (it && d === "categories" && it.rules) {
+        html = "<b>行业规范：</b>" + esc(it.rules) +
+          (it.aiTrap ? "<br><b>AI 常见错误：</b>" + esc(it.aiTrap) : "") +
+          (it.compliance ? "<br><b>合规注意：</b>" + esc(it.compliance) : "");
+      }
+      elx.innerHTML = html;
+      elx.style.display = html ? "block" : "none";
+    });
+  }
+  function toggle(dim, id){
+    sel[dim] = sel[dim] === id ? null : id;
+    refreshAll();
+  }
+  function applySel(dim, id){ sel[dim] = id || null; refreshAll(); }
+
+  function synthOutText(){
+    var r = E.composeFull(sel, product, { strength: strength });
+    var prompt = r.prompt;
+    if (freeText.trim()) prompt += (prompt ? ", " : "") + freeText.trim();
+    if (outTab === "tags") return prompt;
+    if (outTab === "neg") return E.NEGATIVE;
+    if (outTab === "zh") {
+      var lines = r.zh.slice();
+      if (product.name) lines.unshift("商品：" + product.name);
+      if (product.selling) lines.push("卖点：" + product.selling);
+      if (product.audience) lines.push("人群：" + product.audience);
+      if (freeText.trim()) lines.push("原话：" + freeText.trim());
+      if (strength !== 1) lines.push("视觉强调强度：" + Number(strength).toFixed(2));
+      return lines.length ? lines.join("\n") : "还没选任何维度。先选「产出类型」。";
+    }
+    if (outTab === "master") return masterText(sel, product);
+    if (outTab === "changes") return changesText();
+    if (outTab === "json") {
+      var clean = {};
+      DIMS.forEach(function(d){ if (sel[d]) clean[d] = sel[d]; });
+      return JSON.stringify({ sel: clean, product: product, strength: strength, freeText: freeText }, null, 2);
+    }
+    return prompt;
+  }
+  // 变更清单：这个配方做了哪些决定，逐条列出来（复制给别人不用倒推）
+  function changesText(){
+    var cl = E.changesList(sel, { strength: strength, freeText: freeText });
+    if (!cl.rows.length) return "配方是空的。先选「产出类型」。";
+    var lines = ["# 配方变更清单", "", "装配顺序（spec 铁律 → form → goal → category → shot → people → scene → material → style → light → layout → decor）：", ""];
+    cl.rows.forEach(function(r){ lines.push("- [" + r.id + "] " + r.dim + "：" + r.zh); });
+    lines.push("", "视觉强调强度：" + Number(cl.strength).toFixed(2) +
+      (cl.strength > 1 ? "（高：质感锤 + 视觉冲击词段）" : cl.strength < 1 ? "（低：干净自然呈现）" : "（默认）"));
+    if (cl.freeText.trim()) lines.push("原话追加：" + cl.freeText.trim());
+    lines.push("", "冲突裁决：");
+    if (cl.warnings.length) cl.warnings.forEach(function(w){ lines.push("- " + w); });
+    else lines.push("- 无冲突");
+    return lines.join("\n");
+  }
+  function renderSynthOut(){
+    var text = synthOutText();
+    $("out").textContent = text;
+    setWarn("warnBox", E.conflicts(sel));
+    var r = E.compose(sel, { strength: strength });
+    var n = DIMS.filter(function(d){ return sel[d]; }).length;
+    $("meta").innerHTML =
+      '<span class="pill">' + n + "/12 维</span>" +
+      (product.name ? '<span class="pill">商品：' + esc(product.name.slice(0, 24)) + '</span>' : "") +
+      (freeText.trim() ? '<span class="pill">含原话</span>' : "") +
+      (strength !== 1 ? '<span class="pill">强度 ' + Number(strength).toFixed(2) + '</span>' : "") +
+      '<span class="pill">' + esc(outTabName()) + '</span>';
+  }
+  function outTabName(){
+    return { tags: "视觉指令", neg: "负面词", zh: "中文配方", master: "商品信息母版", changes: "变更清单", json: "配方 JSON" }[outTab];
+  }
+  Array.prototype.forEach.call(document.querySelectorAll("#outTabs .fchip"), function(t){
+    t.onclick = function(){
+      document.querySelectorAll("#outTabs .fchip").forEach(function(x){ x.classList.remove("on"); });
+      t.classList.add("on");
+      outTab = t.dataset.out;
+      var om = $("outMore"); if (om) om.removeAttribute("open");
+      renderSynthOut();
+    };
+  });
+
+  // 快速开始：模板 + 案例
+  var presetsEl = $("presets");
+  D.templates.items.concat(D.cases.items).forEach(function(x, i){
+    var b = el("button", "btn small", x.id + " " + x.zh);
+    b.title = (x.desc || x.validates || "") + "（点击载入）";
+    b.style.marginBottom = "4px";
+    b.onclick = function(){
+      var next = {};
+      if (x.fills) Object.keys(x.fills).forEach(function(k){
+        var d = E.KEY2DIM[k] || k; if (E.DIM_KEYS.indexOf(d) !== -1) next[d] = x.fills[k];
+      });
+      if (x.recipe) Object.keys(x.recipe).forEach(function(k){
+        var d = E.KEY2DIM[k] || k; if (E.DIM_KEYS.indexOf(d) !== -1) {
+          var v = x.recipe[k];
+          next[d] = Array.isArray(v) ? v[0] : v;
+        }
+      });
+      loadSel(next);
+      toast("已载入 " + x.id, "看案例", function(){ show("gallery"); });
+    };
+    presetsEl.appendChild(b);
+  });
+
+  $("btnSug").onclick = function(){
+    var sg = sel.forms ? E.suggest(sel.forms) : [];
+    if (!sg.length) { toast("先选「产出类型」"); return; }
+    sg.forEach(function(id){
+      var d = E.dimOf(id);
+      if (d && !sel[d]) sel[d] = id;
+    });
+    refreshAll();
+  };
+  $("btnRandom").onclick = function(){
+    var rnd = E.random(currentLock());
+    DIMS.forEach(function(d){ sel[d] = rnd[d]; });
+    refreshAll();
+    saveHistory(rnd);
+  };
+  $("btnReset").onclick = function(){
+    DIMS.forEach(function(d){ sel[d] = null; });
+    refreshAll();
+  };
+  $("sName").oninput = function(){
+    product.name = this.value;
+    refreshAll();
+    syncCustomInputs();
+  };
+  $("freeText").oninput = function(){ freeText = this.value; renderSynthOut(); };
+  $("strength").oninput = function(){
+    strength = Number(this.value) || 1;
+    $("strengthV").textContent = strength.toFixed(2);
+    renderSynthOut();
+  };
+
+  $("btnCopy").onclick = function(){
+    var v = $("out").textContent;
+    if (!v) { toast("配方是空的"); return; }
+    copyText(v);
+  };
+  $("btnCopyBoth").onclick = function(){
+    var r = E.composeFull(sel, product, { strength: strength });
+    var prompt = r.prompt;
+    if (freeText.trim()) prompt += ", " + freeText.trim();
+    copyText(prompt + "\n\n[Negative prompt]\n" + E.NEGATIVE);
+  };
+  // 出图版：视觉指令 + 目标平台的规格参数建议（词面管画什么，参数管以什么规格生）
+  $("btnCopyRun").onclick = function(){
+    var r = E.composeFull(sel, product, { strength: strength });
+    var prompt = r.prompt;
+    if (freeText.trim()) prompt += ", " + freeText.trim();
+    copyText(prompt + "\n\n[Render params · " + (sel.specs && E.byId[sel.specs] ? E.byId[sel.specs].zh : "未选平台") + "]\n" + E.renderParams(sel));
+    toast("已复制：视觉指令 + 出图参数");
+  };
+  /* 分享码：生成/载入走同一个浮层。生成给码，载入收码。
+     坏码不静默——ECX1. 前缀不对或内容残缺都要说清楚哪里错了。 */
+  function shareState(){
+    return { sel: sel, freeText: freeText, strength: strength, product: product };
+  }
+  function openShare(html){
+    var m = $("shareMask");
+    $("shareSheet").innerHTML = '<div class="sh"><b>' + html.title + '</b><span class="sp"></span>' +
+      '<button class="btn small" data-x>关闭</button></div><div class="sbody">' + html.body + '</div>';
+    m.classList.add("on");
+    m.querySelector("[data-x]").onclick = function(){ m.classList.remove("on"); };
+    m.onclick = function(e){ if (e.target === this) this.classList.remove("on"); };
+  }
+  $("btnSnap").onclick = function(){
+    var n = DIMS.filter(function(d){ return sel[d]; }).length;
+    if (!n) { toast("配方是空的，没什么可分享"); return; }
+    var code;
+    try { code = E.encodeShare(shareState()); } catch (e) { toast("生成失败：" + e.message); return; }
+    openShare({ title: "配方分享码", body:
+      '<p class="hintline">含 12 维选择' + (freeText.trim() ? " + 原话" : "") +
+      (strength !== 1 ? " + 强度 " + strength.toFixed(2) : "") +
+      (product.name ? " + 商品信息" : "") + '。对方在合成器点「载入分享码」粘回即可还原。</p>' +
+      '<textarea id="shareCode" style="width:100%;min-height:120px;margin-top:8px" readonly>' + esc(code) + '</textarea>' +
+      '<div class="btns"><button class="btn pri" id="shareCopyBtn">复制分享码</button></div>' });
+    $("shareCopyBtn").onclick = function(){ copyText($("shareCode").value); toast("分享码已复制"); };
+  };
+  $("btnLoad").onclick = function(){
+    openShare({ title: "载入分享码", body:
+      '<p class="hintline">粘贴以 <b>ECX1.</b> 开头的分享码，还原别人的配方（或你自己存的那份）。</p>' +
+      '<textarea id="shareCode" style="width:100%;min-height:120px;margin-top:8px" placeholder="ECX1...."></textarea>' +
+      '<div class="btns"><button class="btn pri" id="shareGoBtn">载入</button></div>' +
+      '<div class="hintline" id="shareErr" style="color:var(--hard)"></div>' });
+    $("shareGoBtn").onclick = function(){
+      var st;
+      try { st = E.decodeShare($("shareCode").value); }
+      catch (e) { $("shareErr").textContent = "载入失败：" + e.message; return; }
+      DIMS.forEach(function(d){ sel[d] = st.sel[d] || null; });
+      freeText = st.freeText || "";
+      strength = st.strength != null ? st.strength : 1;
+      product = { name: st.product.name || "", selling: st.product.selling || "", audience: st.product.audience || "" };
+      syncCustomInputs();
+      $("shareMask").classList.remove("on");
+      refreshAll();
+      saveHistory(sel);
+      toast("配方已还原", "看成品", function(){ show("synth"); });
+    };
+  };
+  $("btnMd").onclick = function(){
+    var r = E.composeFull(sel, product, { strength: strength });
+    var prompt = r.prompt;
+    if (freeText.trim()) prompt += ", " + freeText.trim();
+    var md = "# 电商配方 " + new Date().toLocaleString() + "\n\n## 中文配方\n" +
+      r.zh.map(function(z){ return "- " + z; }).join("\n") +
+      (product.name ? "\n- 商品：" + product.name : "") +
+      "\n\n## 视觉指令\n\n" + prompt +
+      "\n\n## 负面词\n\n" + E.NEGATIVE + "\n";
+    var blob = new Blob([md], { type: "text/markdown" });
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ecom-recipe.md";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    toast("已下载 .md");
+  };
+
+  // 变形算子
+  var swapSel = $("swapSel");
+  D.categories.items.forEach(function(it){
+    var o = document.createElement("option");
+    o.value = it.id; o.textContent = "换成「" + it.zh + "」保视觉方案";
+    swapSel.appendChild(o);
+  });
+  swapSel.onchange = function(){
+    if (!swapSel.value) return;
+    if (!DIMS.some(function(d){ return sel[d]; })) { toast("先有个配方再变形"); swapSel.value = ""; return; }
+    applySel("categories", swapSel.value);
+    swapSel.value = "";
+  };
+  var opBtns = $("opBtns");
+  Object.keys(E.OPERATORS).forEach(function(opId){
+    var b = el("button", "btn small", E.OPERATORS[opId].zh);
+    b.onclick = function(){
+      if (!DIMS.some(function(d){ return sel[d]; })) { toast("先有个配方再变形"); return; }
+      var next = E.applyOperator(sel, opId);
+      if (!next) return;
+      DIMS.forEach(function(d){ sel[d] = next[d]; });
+      refreshAll();
+      saveHistory(next);
+    };
+    opBtns.appendChild(b);
+  });
+
+  // 历史记录
+  function loadHistory(){
+    try { return JSON.parse(localStorage.getItem("ecom_history") || "[]"); } catch(e){ return []; }
+  }
+  function saveHistory(s){
+    var h = loadHistory();
+    h.unshift({ sel: s, ts: new Date().toLocaleTimeString() });
+    if (h.length > 8) h = h.slice(0, 8);
+    try { localStorage.setItem("ecom_history", JSON.stringify(h)); } catch(e){}
+    renderHistory();
+  }
+  function renderHistory(){
+    var h = loadHistory(), box = $("history");
+    if (!h.length) { box.innerHTML = ""; return; }
+    box.innerHTML = '<div style="font-size:12px;color:var(--ink2);margin-bottom:4px">最近灵感（本机保存）：</div>' +
+      h.map(function(x, i){
+        var zh = E.compose(x.sel).zh.map(function(z){ return z.split("：")[1]; }).join(" · ");
+        return '<div class="dt-kv-r"><span style="flex:1">' + esc(x.ts) + "　" + esc(zh.slice(0, 60)) + (zh.length > 60 ? "…" : "") +
+          '</span><button class="btn small" data-h="' + i + '">恢复</button></div>';
+      }).join("");
+    box.querySelectorAll("button[data-h]").forEach(function(b){
+      b.onclick = function(){
+        var x = h[Number(b.dataset.h)];
+        DIMS.forEach(function(d){ sel[d] = x.sel[d]; });
+        refreshAll();
+      };
+    });
+  }
+  renderHistory();
+
+  /* ============================================================
+   * 自定义出图
+   * ============================================================ */
+  var PRESETS = [
+    { zh: "白底主图", desc: "淘宝 / 京东通用 · 点击导向", sel: { specs:"SP-01", forms:"FO-01", goals:"GO-01", shots:"SH-01", people:"PP-01", scenes:"SC-01", styles:"ST-01", lights:"LT-01", layouts:"LO-09" } },
+    { zh: "Amazon 纯白主图", desc: "白底铁律 · 禁文字禁道具", sel: { specs:"SP-08", forms:"FO-01", goals:"GO-03", shots:"SH-01", people:"PP-01", scenes:"SC-01", styles:"ST-01", lights:"LT-01", layouts:"LO-09" } },
+    { zh: "场景化主图", desc: "有使用语境 · 比白底更种草", sel: { specs:"SP-01", forms:"FO-02", goals:"GO-01", shots:"SH-02", people:"PP-02", scenes:"SC-04", styles:"ST-02", lights:"LT-03", layouts:"LO-05" } },
+    { zh: "模特主图", desc: "服饰美妆常用 · 人带货", sel: { specs:"SP-01", forms:"FO-03", goals:"GO-01", shots:"SH-09", people:"PP-04", scenes:"SC-07", styles:"ST-05", lights:"LT-03", layouts:"LO-04" } },
+    { zh: "详情页长图", desc: "滚动叙事 · 一屏一个论点", sel: { specs:"SP-07", forms:"FO-04", goals:"GO-04", shots:"SH-03", people:"PP-01", scenes:"SC-09", styles:"ST-01", lights:"LT-01", layouts:"LO-10" } },
+    { zh: "大促海报", desc: "紧迫感 · 信息层级第一", sel: { specs:"SP-02", forms:"FO-08", goals:"GO-08", shots:"SH-08", people:"PP-01", scenes:"SC-10", styles:"ST-12", lights:"LT-05", layouts:"LO-08", decors:"DC-08" } },
+    { zh: "小红书种草图", desc: "生活味 · 真实感是卖点", sel: { specs:"SP-06", forms:"FO-05", goals:"GO-06", shots:"SH-05", people:"PP-05", scenes:"SC-08", styles:"ST-05", lights:"LT-03", layouts:"LO-09" } },
+    { zh: "独立站 Banner", desc: "左图右文 · 注意安全边距", sel: { specs:"SP-11", forms:"FO-07", goals:"GO-07", shots:"SH-02", people:"PP-01", scenes:"SC-04", styles:"ST-02", lights:"LT-08", layouts:"LO-06" } }
+  ];
+  var presetCards = $("presetCards");
+  PRESETS.forEach(function(p){
+    var c = el("button", "pcard");
+    c.dataset.spec = p.sel.specs;
+    c.dataset.key = p.sel.specs + "/" + p.sel.forms; // 白底/场景化同 spec，靠 key 区分
+    c.innerHTML = "<b>" + esc(p.zh) + "</b><span class=\"d\">" + esc(p.desc) + "</span>" +
+      '<span class="c">' + esc(Object.keys(p.sel).map(function(k){ return E.KEY2DIM[k] ? p.sel[k] : p.sel[k]; }).join(" · ")) + "</span>";
+    c.onclick = function(){
+      DIMS.forEach(function(d){ sel[d] = p.sel[d] || null; });
+      refreshAll();
+      document.querySelectorAll(".pcard").forEach(function(x){ x.classList.remove("on"); });
+      c.classList.add("on");
+    };
+    presetCards.appendChild(c);
+  });
+  $("easyRandom").onclick = function(){
+    var idx = Math.floor(Math.random() * PRESETS.length);
+    var p = PRESETS[idx];
+    presetCards.children[idx].click(); // 按 idx 点，避免同 spec 预设永远命中第一张
+    toast("随机到「" + p.zh + "」");
+  };
+  // 平台 chips（自定义页）
+  var specChips = $("specChips");
+  D.specs.items.forEach(function(sp){
+    var c = el("span", "fchip", sp.id.replace("SP-", "") + " " + sp.zh);
+    c.dataset.spec = sp.id;
+    c.title = sp.prompt + (sp.note ? "　⚠ " + sp.note : "");
+    c.onclick = function(){
+      sel.specs = sp.id;
+      refreshAll();
+    };
+    specChips.appendChild(c);
+  });
+  function syncCustomInputs(){
+    $("cName").value = product.name;
+    $("cSelling").value = product.selling;
+    $("cAudience").value = product.audience;
+    $("sName").value = product.name;
+    $("freeText").value = freeText;
+    $("strength").value = strength;
+    $("strengthV").textContent = Number(strength).toFixed(2);
+    document.querySelectorAll("#specChips .fchip").forEach(function(c){
+      c.classList.toggle("on", c.dataset.spec === sel.specs);
+    });
+    document.querySelectorAll(".pcard").forEach(function(x){
+      x.classList.toggle("on", x.dataset.key === sel.specs + "/" + sel.forms);
+    });
+    var sp = sel.specs && E.index.specs[sel.specs];
+    var pn = $("platNote");
+    if (sp && sp.note) { pn.innerHTML = "<b>平台铁律 " + esc(sp.id) + " " + esc(sp.zh) + "：</b>" + esc(sp.note); pn.classList.add("show"); }
+    else pn.classList.remove("show");
+  }
+  $("cName").oninput = function(){ product.name = this.value; refreshAll(); $("sName").value = this.value; };
+  $("cSelling").oninput = function(){ product.selling = this.value; refreshAll(); };
+  $("cAudience").oninput = function(){ product.audience = this.value; refreshAll(); };
+  function customRender(){
+    setWarn("customWarn", E.conflicts(sel));
+    syncCustomInputs();
+    var has = DIMS.some(function(d){ return sel[d]; });
+    $("easyOut").textContent = has
+      ? E.compose(sel, { strength: strength }).prompt
+      : "← 先在左侧选一个高频场景，成品会出现在这里";
+  }
+  $("easyCopyPrompt").onclick = function(){
+    if (!DIMS.some(function(d){ return sel[d]; })) { toast("先选一个高频场景"); return; }
+    copyText(E.compose(sel, { strength: strength }).prompt);
+  };
+  $("easyCopyFull").onclick = function(){
+    if (!DIMS.some(function(d){ return sel[d]; })) { toast("先选一个高频场景"); return; }
+    copyText(fullVersion(sel, product));
+  };
+  $("easyRandom2").onclick = function(){ $("easyRandom").click(); };
+
+  // ============================================================
+  // 链接出图（独立页 v-linkgrab）：链接/SKU 读取 + 粘贴解析兜底
+  // 解析是纯本地词典（零请求）；直接抓商品页走公共跨域通道尽力而为，
+  // 淘宝/京东登录墙拉不到就如实降级到粘贴解析，不硬编。
+  // ============================================================
+  var CAT_WORDS = {
+    "CT-01": ["精华","面霜","乳液","面膜","化妆水","爽肤水","口红","粉底","防晒","眼霜","洗面奶","水乳","精华液","眼影","腮红","睫毛膏","卸妆","香水","护手霜","身体乳","祛痘","抗老","serum","cream","mask","lipstick","sunscreen","skincare"],
+    "CT-02": ["连衣裙","卫衣","T恤","t恤","衬衫","夹克","外套","牛仔裤","羽绒服","内衣","袜子","半身裙","西装","裤","包","dress","shirt","jacket","hoodie","coat","bag","tote","apparel"],
+    "CT-03": ["耳机","手机","充电","数据线","音箱","键盘","鼠标","平板","笔记本","摄像头","充电宝","路由器","蓝牙","降噪","智能手表","手环","相机","无人机","显示器","硬盘","earbuds","headphones","charger","speaker","keyboard","power bank","gadget"],
+    "CT-04": ["零食","坚果","咖啡","茶叶","饼干","面包","蜂蜜","果酱","牛肉干","薯片","饮料","果汁","拌饭","米饭","速食","自热","冲泡","方便面","泡面","螺蛳粉","粥","麦片","酸奶","牛奶","月饼","粽子","水果","大米","粮油","小火锅","辣条","snack","coffee","tea","honey","cookie","food"],
+    "CT-05": ["收纳","香薰","毛巾","抱枕","花瓶","杯子","拖鞋","牙刷","台灯","四件套","餐具","收纳盒","窗帘","地毯","衣架","storage","candle","mug","vase","lamp","towel","home"],
+    "CT-06": ["奶瓶","纸尿裤","婴儿","辅食","宝宝","儿童座椅","湿巾","安抚","奶嘴","爬服","绘本","玩具","baby","diaper","infant","stroller"],
+    "CT-07": ["跑鞋","瑜伽","健身","哑铃","帐篷","骑行","羽毛球","篮球","登山","水壶","运动","泳衣","跑步机","跳绳","滑板","渔具","跑步","running","yoga","fitness","tent","hiking","dumbbell","sport"],
+    "CT-08": ["项链","手链","戒指","耳环","耳饰","黄金","银饰","手表","吊坠","翡翠","珍珠","莫桑钻","necklace","ring","bracelet","earring","watch","jewelry"],
+    "CT-09": ["手账","笔记本","钢笔","贴纸","胶带","文具","马克笔","便签","文件袋","书夹","journal","notebook","pen","sticker","washi","stationery"],
+    "CT-10": ["猫粮","狗粮","宠物","猫砂","猫爬架","逗猫","遛狗","狗绳","猫罐头","宠物零食","pet","cat","dog","litter"],
+    "CT-11": ["维生素","胶原蛋白","鱼油","蛋白粉","枸杞","红枣","燕窝","益生菌","钙片","滋补","阿胶","人参","西洋参","养生茶","vitamin","collagen","fish oil","protein","supplement"],
+    "CT-12": ["礼盒","礼物套装","伴手礼","年货","礼盒装","节日礼盒","礼品","gift box","gift set"],
+    "CT-13": ["车载","行车记录仪","脚垫","汽车","座套","玻璃水","手机支架","洗车","轮胎","car","dashcam","vehicle"],
+    "CT-14": ["电钻","螺丝","工具箱","花盆","种子","浇花","五金","扳手","园艺剪","化肥","营养土","drill","screw","toolbox","planter","garden","tool"]
+  };
+  var AUDIENCE_WORDS = ["男士","男款","女性","女士","女款","儿童","宝宝","婴儿","孕妇","老人","学生","办公","情侣","宠物","通勤","户外"];
+  var BENEFIT_RE = /(降噪|续航|小时|防水|保湿|美白|透气|轻薄|大容量|便携|快充|天然|有机|无糖|高钙|折叠|智能|显瘦|加绒|保暖|缓震|助眠|排湿|除螨|\d+(小时|天|mAh|ml|ml|g|kg|W|dB|mm|L|折))/i;
+
+  function detectSpec(raw, lower){
+    var rules = [
+      [/taobao|tmall|天猫|淘宝/, "SP-01"], [/jd\.com|京东/, "SP-03"],
+      [/yangkeduo|pinduoduo|pdd\.|拼多多/, "SP-02"], [/amazon|亚马逊/, "SP-08"],
+      [/etsy/, "SP-10"], [/shopify|独立站/, "SP-11"], [/xiaohongshu|xhslink|小红书/, "SP-06"],
+      [/douyin|抖音/, "SP-04"], [/weixin|小程序/, "SP-15"], [/facebook|fb\.|meta/, "SP-14"]
+    ];
+    for (var i = 0; i < rules.length; i++) if (rules[i][0].test(lower)) return rules[i][1];
+    return null;
+  }
+  function detectFormHint(lower){
+    if (/详情|长图/.test(lower)) return "detail";
+    if (/海报|大促|促销|秒杀|满减|折扣/.test(lower)) return "promo";
+    if (/种草|小红书|买家秀/.test(lower)) return "grass";
+    if (/banner|横幅|头图/.test(lower)) return "banner";
+    return null;
+  }
+  function parseProductText(raw){
+    var lower = raw.toLowerCase();
+    // 行边界保留：书签抓取的内容是多行（标题/价格/店铺），先按行再按标点分段，
+    // 否则店铺名里的「旗舰」会被促销标签过滤误杀真品名段
+    var lines = raw.replace(/https?:\/\/\S+/g, " ").split(/\n+/).map(function(s){ return s.trim(); }).filter(Boolean);
+    var noUrl = lines.join(" ");
+    // 品类：命中词计数取最多
+    var bestCat = null, bestHits = 0, hitWords = [];
+    Object.keys(CAT_WORDS).forEach(function(cid){
+      var hits = CAT_WORDS[cid].filter(function(w){ return lower.indexOf(w.toLowerCase()) !== -1 || noUrl.indexOf(w) !== -1; });
+      if (hits.length > bestHits) { bestHits = hits.length; bestCat = cid; hitWords = hits; }
+    });
+    // 人群
+    var audience = null;
+    for (var i = 0; i < AUDIENCE_WORDS.length; i++) if (raw.indexOf(AUDIENCE_WORDS[i]) !== -1) { audience = AUDIENCE_WORDS[i]; break; }
+    // 名称与卖点：促销标签段不作为商品名；优先取命中品类词的段，兜底取最长段
+    var segs = [];
+    lines.forEach(function(ln){
+      ln.split(/[｜丨|，,；;【】\[\]]+/).map(function(s){ return s.trim(); }).filter(Boolean).forEach(function(s){ segs.push(s); });
+    });
+    var tagRe = /(旗舰|新品|官方|正品|包邮|限时|爆款|直降|特惠|秒杀)/;
+    var nameCands = segs.filter(function(s){ return !tagRe.test(s); });
+    var name = "";
+    if (nameCands.length) {
+      var withCat = nameCands.filter(function(s){
+        return hitWords.some(function(w){ return s.indexOf(w) !== -1; });
+      });
+      var pick = withCat.length ? withCat[0]
+        : nameCands.slice().sort(function(a, b){ return b.length - a.length; })[0];
+      name = pick.split(/\s+/)[0].slice(0, 20)
+        .replace(/[\/].*$/, "")                       // 砍掉 /12桶装 这类多规格尾巴
+        .replace(/\d+\s*(g|kg|ml|l|桶|袋|盒|片|支|件|包|个|双|碗|瓶).*$/i, ""); // 砍掉 124g 这类规格
+    }
+    var selling = [];
+    segs.join(" ").split(/\s+/).forEach(function(t){
+      if (t !== name && t.length >= 2 && t.length <= 24 && BENEFIT_RE.test(t) && selling.length < 3 && selling.indexOf(t) === -1) selling.push(t);
+    });
+    return {
+      name: name, selling: selling, audience: audience,
+      spec: detectSpec(raw, lower), formHint: detectFormHint(lower),
+      cat: bestCat, catHits: bestHits, catWords: hitWords, junk: !noUrl
+    };
+  }
+  function recommendMainIdx(r){
+    if (r.formHint === "promo") return 5;
+    if (r.formHint === "grass") return 6;
+    if (r.formHint === "banner") return 7;
+    if (r.spec === "SP-08") return 1;
+    if (["CT-01","CT-02","CT-08"].indexOf(r.cat) !== -1) return 3;
+    return 2;
+  }
+  var lastGrab = null;
+  function showGrabResult(r){
+    lastGrab = r;
+    var catZh = r.cat ? (r.cat + " " + D.categories.items.filter(function(c){ return c.id === r.cat; })[0].zh) : "未识别 · 按通用品类出词";
+    var specZh = r.spec ? (r.spec + " " + E.index.specs[r.spec].zh) : "未识别 · 按通用规格";
+    var box = $("grabOut");
+    box.style.display = "block";
+    box.innerHTML = "识别结果：品类 <b>" + esc(catZh) + "</b>" +
+      (r.catWords && r.catWords.length ? "（命中 " + esc(r.catWords.slice(0, 3).join("/")) + "）" : "") +
+      " · 平台规格 <b>" + esc(specZh) + "</b>" +
+      (r.audience ? " · 人群 <b>" + esc(r.audience) + "</b>" : "") +
+      (r.name ? "<br>商品名：" + esc(r.name) : "") +
+      (r.selling.length ? "<br>卖点：" + esc(r.selling.join("；")) : "") +
+      "<br>点下方「载入配方并出词」，主图 + 详情长图两份词面即出。" +
+      (r.cat ? "" : "<br>⚠ 品类词没命中——把标题里的品类词（如「耳机」「拌饭」）确认粘全了，或载入后去合成器 ② 手动选品类。");
+    $("btnApplyGrab").style.display = "inline-flex";
+  }
+  $("btnParse2").onclick = function(){
+    // 早期挂桩的 onclick 在这里被替换成真处理函数；整段包 try/catch——
+    // 解析出任何问题都必须落在用户眼前，不能静默"没反应"。
+    try {
+      var raw = $("linkPaste").value.trim();
+      var urlIn = $("linkUrl").value.trim();
+      if (urlIn) raw = raw + " " + urlIn; // 链接框里的 URL 并入解析，平台识别不丢
+      if (!raw) {
+        // 不能只弹 3 秒 toast——用户一没注意到就是"点了没反应"。写进 ③ 结果区，常驻看得见。
+        $("grabOut").style.display = "block";
+        $("grabOut").innerHTML = "⓳ ② 解析框还是空的。<b>把商品页的标题和卖点文字粘贴进来</b>再点解析——链接里不含标题，只粘链接是解析不出商品的。<br>最快的办法：用左边的 <b>🔖 书签一键抓取</b>，在商品页点一下就复制好了，回来粘贴即可。";
+        $("linkPaste").focus();
+        toast("先粘贴商品标题或文案");
+        return;
+      }
+      var r = parseProductText(raw);
+      if (r.junk) {
+        // 去掉链接后没有任何文字——只粘链接是解析不出商品的
+        $("grabOut").style.display = "block";
+        $("grabOut").innerHTML = "⚠ <b>只读到链接，没拿到商品信息。</b>链接本身不含标题和卖点，纯前端页又拉不到平台里的内容。<br>" +
+          "三个解决办法（任选其一）：<br>" +
+          "① 用上面的 <b>🔖 书签一键抓取</b>——在商品页点一下，标题/卖点/价格自动复制，回来粘贴即可；<br>" +
+          "② 在商品页<b>手动复制标题和卖点</b>（选中标题文字复制，或点分享→复制文案），粘到本框再解析；<br>" +
+          "③ 把商品链接<b>发到对话里</b>，我直接读出来，按配方给你主图 + 详情的成品词。";
+        return;
+      }
+      if (!r.cat && !r.spec) {
+        $("grabOut").style.display = "block";
+        $("grabOut").innerHTML = "⚠ 没识别出品类关键词或平台。把<b>商品标题和卖点完整粘贴</b>再试（须含品类词，如「耳机」「拌饭」），或检查有没有漏字。";
+        return;
+      }
+      showGrabResult(r);
+      toast("解析完成：" + (r.cat || "品类未识别"));
+    } catch (err) {
+      // 兜底：真出了bug也让人看见，而不是静默失败
+      $("grabOut").style.display = "block";
+      $("grabOut").innerHTML = "⚠ 解析时出错了：" + esc((err && err.message) || err) + "。<br>把商品标题和卖点文字重新粘贴一遍再试；仍有问题就把内容发到对话里，我来读。";
+    }
+  };
+  // —— 🔖 书签一键抓取：在商品页（用自己的登录态）抓标题/卖点/价格/店铺进剪贴板。
+  //    函数自包含（不引用页面变量），href 用 toString() 生成，装到书签栏即可在任意商品页运行。
+  function grabInfo(){
+    var T=function(s){return (s||'').replace(/\s+/g,' ').trim()};
+    // 标题：剥掉京东的「【图片 价格 品牌 评论】」尾缀和平台名后缀（-京东/-淘宝网/-天猫）
+    var title=T(document.title).replace(/【[^】]*图[^】]*】/g,'').replace(/\s*[-_|—]+\s*(京东|淘宝网|天猫|tmall|Amazon).*$/i,'');
+    // 描述：京东/淘宝的 meta description 是固定商城模板，剥掉前后缀
+    var desc='';
+    var m=document.querySelector('meta[name="description"]')||document.querySelector('meta[property="og:description"]');
+    if(m){desc=T(m.content)
+      .replace(/^京东JD\.COM是国内专业的网上购物商城，为[^,，]*提供/,'')
+      .replace(/^淘宝网[^,，]*为[^,，]*提供/,'')
+      .replace(/价格、图片、品牌、评论.*$/,'')
+      .replace(/【[^】]*图[^】]*】/g,'');}
+    // 价格：京东 #jd-price / .p-price，兜底 class 含 price 的元素
+    var price='';
+    var pe=document.querySelector('#jd-price')||document.querySelector('.p-price')||document.querySelector('[class*="price"]');
+    if(pe){price=T(pe.textContent).replace(/[^0-9.]/g,'');}
+    // 店铺名
+    var shop='';
+    var se=document.querySelector('.name a')||document.querySelector('#shopName')||document.querySelector('.shop-name')||document.querySelector('[class*="shopName"]');
+    if(se){shop=T(se.textContent);}
+    var parts=[title];
+    if(desc&&desc.indexOf(title.slice(0,8))===-1&&desc.length>4)parts.push(desc);
+    if(price)parts.push('价格 '+price+' 元');
+    if(shop&&shop.length<30)parts.push('店铺 '+shop);
+    var out=parts.join('\n');
+    function done(){alert('✅ 商品信息已复制到剪贴板。\n\n回到「电商商品提示词库 → 链接出图」页，粘进 ② 解析框，点「解析」。');}
+    function fallback(){window.prompt('自动复制没成功，请手动复制下面内容：',out);}
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(out).then(done,fallback);}else{fallback();}
+  }
+  $("bmklet").href="javascript:("+grabInfo.toString()+")()";
+  $("bmkCopyCode").onclick = function(){
+    var done = function(){ toast("书签代码已复制：书签栏右键 → 添加网页 → 网址粘贴"); };
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText($("bmklet").href).then(done, function(){ toast("复制失败，请直接拖左侧按钮"); });
+    } else { toast("当前浏览器不支持自动复制，请直接拖左侧按钮"); }
+  };
+  function normalizeTarget(){
+    var raw = $("linkUrl").value.trim();
+    if (!raw) return null;
+    var urlM = raw.match(/https?:\/\/\S+/);
+    if (urlM) return urlM[0];
+    var asin = raw.toUpperCase().match(/\b([A-Z][A-Z0-9]{9})\b/);
+    if (asin && /[A-Z]/.test(raw)) return "https://www.amazon.com/dp/" + asin[1];
+    var digits = raw.match(/\b(\d{6,15})\b/);
+    if (digits) return $("skuPlat").value === "taobao"
+      ? "https://item.taobao.com/item.htm?id=" + digits[1]
+      : "https://item.jd.com/" + digits[1] + ".html";
+    return null;
+  }
+  async function fetchViaReaders(url){
+    var readers = [
+      "https://api.allorigins.win/raw?url=" + encodeURIComponent(url),
+      "https://corsproxy.io/?url=" + encodeURIComponent(url)
+    ];
+    for (var i = 0; i < readers.length; i++) {
+      var ctl = typeof AbortController !== "undefined" ? new AbortController() : null;
+      var timer = ctl ? setTimeout(function(){ ctl.abort(); }, 12000) : null;
+      try {
+        var res = await fetch(readers[i], ctl ? { signal: ctl.signal } : {});
+        if (res.ok) {
+          var t = await res.text();
+          if (t && t.length > 500) { if (timer) clearTimeout(timer); return t; }
+        }
+      } catch (e) { /* 通道失败，试下一个 */ }
+      if (timer) clearTimeout(timer);
+    }
+    return null;
+  }
+  function htmlToText(html){
+    try {
+      var doc = new DOMParser().parseFromString(html, "text/html");
+      var g = function(sel){ var m = doc.querySelector(sel); return m ? (m.getAttribute("content") || m.textContent || "") : ""; };
+      return [g('meta[property="og:title"]'), doc.title || "", g('meta[name="keywords"]'),
+        g('meta[property="og:description"]'), g('meta[name="description"]')]
+        .join(" ").replace(/\s+/g, " ").trim();
+    } catch (e) { return ""; }
+  }
+  function showFallback(msg){
+    var note = $("fetchNote");
+    note.style.display = "block";
+    note.innerHTML = "⚠ " + msg;
+    $("pasteFallback").style.display = "block";
+  }
+  $("btnFetch").onclick = async function(){
+    var url = normalizeTarget();
+    if (!url) { toast("先粘贴链接或 SKU / ASIN"); return; }
+    if (typeof fetch === "undefined") { showFallback("当前环境不支持网络读取（旧浏览器或 file:// 受限）。走下面粘贴解析，一样全自动。"); return; }
+    var note = $("fetchNote");
+    note.style.display = "block";
+    note.innerHTML = "⏳ 正在读取商品页（公共跨域通道，最长约 25 秒）…<br>" + esc(url);
+    var html = await fetchViaReaders(url);
+    if (!html) { showFallback("读取失败：平台登录墙 / 反爬把公共代理挡住了。<b>这不是故障——淘宝 / 京东 / Amazon 对无登录态的请求都会返回验证页，纯前端页绕不开。</b><br>接下来走 <b>② 粘贴解析</b>：最快的办法是用上面的 <b>🔖 书签一键抓取</b>（在商品页点一下就复制好标题卖点）；也可以把链接<b>发到对话里</b>，我帮你读。"); return; }
+    var text = htmlToText(html);
+    var r = parseProductText(text);
+    if (r.junk || (!r.cat && !r.spec)) { showFallback("读到了页面，但提取不到有效商品信息（验证页或动态渲染）。走 ② 粘贴解析，或把链接发到对话里我帮你读。"); return; }
+    note.innerHTML = "✓ 读取成功：" + esc(url);
+    showGrabResult(r);
+  };
+  $("linkUrl").oninput = function(){
+    var v = this.value;
+    $("skuPlatRow").style.display = (!/https?:\/\//.test(v) && /^\s*\d{6,15}\s*$/.test(v)) ? "flex" : "none";
+  };
+  $("btnApplyGrab").onclick = function(){
+    if (!lastGrab) { toast("先读取或解析出商品信息"); return; }
+    var r = lastGrab;
+    presetCards.children[recommendMainIdx(r)].click(); // 按 idx 点，同 spec 预设不会点错
+    if (r.spec) sel.specs = r.spec;
+    if (r.cat) sel.categories = r.cat;
+    if (r.name) product.name = r.name;
+    if (r.selling.length) product.selling = r.selling.join(", ");
+    if (r.audience) product.audience = r.audience;
+    refreshAll();
+    // 详情长图基座：详情预设 + 适合长图的规格覆盖 + 同品类
+    var detailSel = {};
+    DIMS.forEach(function(d){ detailSel[d] = PRESETS[4].sel[d] || null; });
+    var detailSpecs = ["SP-07","SP-04","SP-09","SP-16","SP-10"];
+    detailSel.specs = (r.spec && detailSpecs.indexOf(r.spec) !== -1) ? r.spec : "SP-07";
+    if (r.cat) detailSel.categories = r.cat;
+    setWarn("grabWarn", E.conflicts(sel));
+    var sp = sel.specs && E.index.specs[sel.specs];
+    var pn = $("grabNote");
+    if (sp && sp.note) { pn.innerHTML = "<b>平台铁律 " + esc(sp.id) + " " + esc(sp.zh) + "：</b>" + esc(sp.note); pn.classList.add("show"); }
+    else pn.classList.remove("show");
+    $("grabMain").textContent = E.compose(sel, { strength: strength }).prompt;
+    $("grabDetail").textContent = E.compose(detailSel, { strength: strength }).prompt;
+    toast("已出主图 + 详情两份词面");
+  };
+  $("btnCopyGrabMain").onclick = function(){ copyText($("grabMain").textContent); };
+  $("btnCopyGrabDetail").onclick = function(){ copyText($("grabDetail").textContent); };
+  $("grabToSynth").onclick = function(){ show("synth"); };
+  $("toSynth").onclick = function(){ show("synth"); };
+
+  /* ============================================================
+   * 抽卡
+   * ============================================================ */
+  function rollCards(n){
+    var out = $("gaOut");
+    out.innerHTML = "";
+    var used = {};
+    for (var i = 0; i < n; i++) {
+      var rnd = E.random(currentLock());
+      var key = DIMS.map(function(d){ return rnd[d]; }).join("|");
+      if (used[key]) { i--; if (i < 0) i = 0; continue; }
+      used[key] = true;
+      out.appendChild(gacaCard(rnd, i + 1));
+    }
+  }
+  function gacaCard(rnd, idx){
+    var r = E.compose(rnd);
+    var card = el("div", "gaca");
+    var zh = r.zh.map(function(z){ return z.split("：")[1]; }).join(" · ");
+    card.innerHTML = '<div class="gh"><b>#' + idx + '</b><span style="font-size:12px;color:var(--ink2);flex:1">' + esc(zh) + '</span></div>' +
+      '<div class="gp">' + esc(r.prompt) + "</div>" +
+      '<div class="btns">' +
+      '<button class="btn small" data-act="load">载入到合成器</button>' +
+      '<button class="btn small" data-act="copy">复制</button>' +
+      '<button class="btn small" data-act="full">复制完整版</button></div>';
+    card.querySelector('[data-act="load"]').onclick = function(){ loadSel(rnd); show("synth"); toast("已载入到合成器"); };
+    card.querySelector('[data-act="copy"]').onclick = function(){ copyText(r.prompt); };
+    card.querySelector('[data-act="full"]').onclick = function(){ copyText(fullVersion(rnd, product)); };
+    return card;
+  }
+  $("gaRoll1").onclick = function(){ rollCards(1); };
+  $("gaRoll4").onclick = function(){ rollCards(4); };
+  $("gaRoll8").onclick = function(){ rollCards(8); };
+  $("gaRandomCase").onclick = function(){
+    var cs = D.cases.items[Math.floor(Math.random() * D.cases.items.length)];
+    var next = {};
+    Object.keys(cs.recipe).forEach(function(k){
+      var d = E.KEY2DIM[k] || k;
+      if (E.DIM_KEYS.indexOf(d) !== -1) { var v = cs.recipe[k]; next[d] = Array.isArray(v) ? v[0] : v; }
+    });
+    var r = E.compose(next);
+    var img = (window.GALLERY_IMGS || {})[cs.id];
+    var card = el("div", "gaca");
+    card.innerHTML = '<div class="gh"><b>' + esc(cs.id) + '</b><span style="font-size:12px;color:var(--ink2);flex:1">' +
+      esc(cs.zh) + " · 图库随机，不动当前配方</span></div>" +
+      (img ? '<img src="' + esc(img) + '" alt="' + esc(cs.id) + '" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin:6px 0">' : "") +
+      '<div class="gp">' + esc(r.prompt) + "</div>" +
+      '<div class="btns"><button class="btn small" data-act="copy">复制</button>' +
+      '<button class="btn small" data-act="full">复制完整版</button>' +
+      '<button class="btn small" data-act="load">载入到合成器</button></div>';
+    card.querySelector('[data-act="copy"]').onclick = function(){ copyText(r.prompt); };
+    card.querySelector('[data-act="full"]').onclick = function(){ copyText(fullVersion(next, product)); };
+    card.querySelector('[data-act="load"]').onclick = function(){ loadSel(next); show("synth"); toast("已载入到合成器"); };
+    $("gaOut").appendChild(card);
+    toast("随机案例 " + cs.id + " " + cs.zh);
+  };
+  $("gaClear").onclick = function(){ $("gaOut").innerHTML = ""; };
+
+  /* ============================================================
+   * 全部词条
+   * ============================================================ */
+  var curDim = "forms";
+  var dimTabs = $("dimTabs");
+  DIMS.forEach(function(d){
+    var b = el("button", "dtab", ZH[d] + " " + D[d].items.length);
+    b.dataset.dim = d;
+    b.onclick = function(){
+      curDim = d;
+      document.querySelectorAll("#dimTabs .dtab").forEach(function(x){ x.classList.toggle("on", x.dataset.dim === d); });
+      renderEntries();
+    };
+    if (d === curDim) b.classList.add("on");
+    dimTabs.appendChild(b);
+  });
+  $("pickHint").textContent = s.entries + " 条词条 · 12 个维度 · 搜索 / 点名字看详情";
+  function renderEntries(){
+    var q = $("eq").value.trim().toLowerCase();
+    var list = $("eList");
+    list.innerHTML = "";
+    var items = D[curDim].items.filter(function(it){
+      if (!q) return true;
+      return (it.id + " " + it.zh + " " + (it.prompt || "") + " " + (it.note || "")).toLowerCase().indexOf(q) !== -1;
+    });
+    if (!items.length) {
+      list.appendChild(el("div", "empty", "没有匹配的词条。换个关键词或维度看看。"));
+      return;
+    }
+    items.forEach(function(it){
+      var row = el("div", "erow");
+      row.appendChild(el("span", "eid", it.id));
+      var nm = el("div", "enm");
+      var b = el("b", null, it.zh);
+      b.onclick = function(){ openDetail(it, curDim); };
+      nm.appendChild(b);
+      nm.appendChild(el("p", null, it.prompt));
+      row.appendChild(nm);
+      var add = el("button", "add", sel[curDim] === it.id ? "已加入 ✓" : "加入");
+      if (sel[curDim] === it.id) add.classList.add("on");
+      add.onclick = function(){
+        sel[curDim] = sel[curDim] === it.id ? null : it.id;
+        refreshAll();
+        renderEntries();
+        if (sel[curDim]) toast("已加入「" + it.zh + "」，成品即时更新");
+      };
+      row.appendChild(add);
+      list.appendChild(row);
+    });
+  }
+  $("eq").oninput = renderEntries;
+  function openDetail(it, dim){
+    var p = $("dtPanel");
+    var html = '<div class="dt-hd"><h3>' + esc(it.id + " " + it.zh) + '</h3>' +
+      '<button class="btn small" data-x="1">关闭</button></div><div class="dt-body">';
+    html += '<div class="dt-kv">' +
+      '<div class="dt-kv-r"><span class="dt-kv-k">维度</span><span class="dt-kv-v">' + esc(ZH[dim]) + " · " + esc(D[dim].decides || "") + '</span></div>' +
+      '<div class="dt-kv-r"><span class="dt-kv-k">英文词面</span><span class="dt-kv-v" style="font-family:var(--mono)">' + esc(it.prompt) + "</span></div>";
+    if (it.note) html += '<div class="dt-kv-r"><span class="dt-kv-k">备注</span><span class="dt-kv-v">' + esc(it.note) + "</span></div>";
+    if (it.rules) html += '<div class="dt-kv-r"><span class="dt-kv-k">行业规范</span><span class="dt-kv-v">' + esc(it.rules) + "</span></div>";
+    if (it.aiTrap) html += '<div class="dt-kv-r"><span class="dt-kv-k">AI 陷阱</span><span class="dt-kv-v">' + esc(it.aiTrap) + "</span></div>";
+    if (it.compliance) html += '<div class="dt-kv-r"><span class="dt-kv-k">合规注意</span><span class="dt-kv-v">' + esc(it.compliance) + "</span></div>";
+    html += "</div>";
+    if (dim === "forms" && it.children) {
+      html += '<div class="dt-sub">二级目录 <em>导航用，不进提示词</em></div><div class="dt-box">' +
+        it.children.map(function(c){ return '<div class="dt-f"><span class="dt-fv">' + esc(c) + "</span></div>"; }).join("") + "</div>";
+    }
+    if (dim === "styles") {
+      var pl = E.paletteOf(it.id);
+      if (pl) {
+        html += '<div class="dt-sub">登记配色 <em>点色块复制 hex</em></div><div class="swrow">' +
+          pl.swatches.map(function(sw){
+            return '<div class="sw" data-hex="' + esc(sw.hex) + '"><span class="blk" style="background:' + esc(sw.hex) + '"></span><span class="nm">' + esc(sw.name) + " " + esc(sw.hex) + "</span></div>";
+          }).join("") + "</div>";
+      }
+    }
+    if (it.suggest) {
+      html += '<div class="dt-sub">建议派生位</div><div class="dt-box">' +
+        it.suggest.map(function(id){
+          var t = E.byId[id];
+          return '<div class="dt-f"><span class="dt-fk">' + esc(id) + '</span><span class="dt-fv">' + esc(t ? t.zh : "?") + "</span></div>";
+        }).join("") + "</div>";
+    }
+    html += '<div class="btns"><button class="btn pri" data-add="1">加入配方</button>' +
+      '<button class="btn" data-copy="1">复制英文词面</button></div>';
+    html += "</div>";
+    p.innerHTML = html;
+    p.classList.add("on");
+    $("dtMask").classList.add("on");
+    p.querySelector("[data-x]").onclick = closeDetail;
+    var addBtn = p.querySelector("[data-add]");
+    addBtn.onclick = function(){
+      sel[dim] = it.id;
+      refreshAll();
+      renderEntries();
+      closeDetail();
+      toast("已加入「" + it.zh + "」，成品即时更新");
+    };
+    p.querySelector("[data-copy]").onclick = function(){ copyText(it.prompt); };
+    p.querySelectorAll(".sw[data-hex]").forEach(function(sw){
+      sw.onclick = function(){ copyText(sw.dataset.hex, "已复制 " + sw.dataset.hex); };
+    });
+  }
+  function closeDetail(){
+    $("dtPanel").classList.remove("on");
+    $("dtMask").classList.remove("on");
+  }
+  $("dtMask").onclick = closeDetail;
+  renderEntries();
+
+  /* ============================================================
+   * 风格配色搭配
+   * ============================================================ */
+  function renderPairs(){
+    var q = $("pairQ").value.trim().toLowerCase();
+    var grid = $("pairGrid");
+    grid.innerHTML = "";
+    var catZh = {};
+    D.categories.items.forEach(function(c){ catZh[c.id] = c.zh; });
+    D.palettes.items.forEach(function(pl){
+      var style = E.index.styles[pl.style];
+      var hay = (pl.id + " " + pl.style + " " + pl.styleZh + " " + pl.note + " " + pl.avoid + " " +
+        pl.swatches.map(function(w){ return w.name + w.hex; }).join(" ") +
+        pl.cats.map(function(c){ return catZh[c] || c; }).join(" ")).toLowerCase();
+      if (q && hay.indexOf(q) === -1) return;
+      var card = el("div", "pair");
+      var head = '<h3>' + esc(pl.styleZh) + " <em>" + esc(pl.style + " · " + pl.id) + "</em></h3>" +
+        '<div class="pen">' + esc(style ? style.prompt.slice(0, 88) : "") + "</div>";
+      var sw = '<div class="swrow">' + pl.swatches.map(function(w){
+        return '<div class="sw" data-hex="' + esc(w.hex) + '" title="点击复制 ' + esc(w.hex) + '">' +
+          '<span class="blk" style="background:' + esc(w.hex) + '"></span><span class="nm">' + esc(w.name) + "</span></div>";
+      }).join("") + "</div>";
+      function tags(ids, map){
+        return '<span class="ptags">' + (ids || []).map(function(id){
+          return '<span class="ptag">' + esc((map && map[id]) || (E.byId[id] ? E.byId[id].zh : id)) + "</span>";
+        }).join("") + "</span>";
+      }
+      var body =
+        '<div class="prow"><span class="pk">适合品类</span>' + tags(pl.cats, catZh) + "</div>" +
+        '<div class="prow"><span class="pk">场景</span>' + tags(pl.scenes) + "</div>" +
+        '<div class="prow"><span class="pk">灯位</span>' + tags(pl.lights) + "</div>" +
+        '<div class="prow"><span class="pk">版式</span>' + tags(pl.layouts) + "</div>" +
+        '<div class="pnote">' + esc(pl.note) + "</div>" +
+        '<div class="pavoid">避免：' + esc(pl.avoid) + "</div>";
+      card.innerHTML = head + sw + body;
+      var btn = el("button", "btn small", "载入这个风格到合成器");
+      btn.style.marginTop = "8px";
+      btn.onclick = function(){
+        sel.styles = pl.style;
+        refreshAll();
+        show("synth");
+        toast("已载入「" + pl.styleZh + "」风格");
+      };
+      card.appendChild(btn);
+      card.querySelectorAll(".sw[data-hex]").forEach(function(w){
+        w.onclick = function(){ copyText(w.dataset.hex, "已复制 " + w.dataset.hex); };
+      });
+      grid.appendChild(card);
+    });
+    if (!grid.children.length) grid.appendChild(el("div", "empty", "没有匹配的配色卡。"));
+  }
+  $("pairQ").oninput = renderPairs;
+  renderPairs();
+
+  /* ============================================================
+   * 示例画廊
+   * ============================================================ */
+  var galType = "all", galImgs = window.GALLERY_IMGS || {}, galUn = window.GALLERY_UNCLAIMED || [];
+  var galCards = D.cases.items.map(function(cs){ return { kind: "case", item: cs }; })
+    .concat(D.templates.items.map(function(tp){ return { kind: "tpl", item: tp }; }));
+  var galFilters = $("galFilters");
+  [["all", "全部 " + galCards.length], ["case", "案例 " + D.cases.items.length], ["tpl", "模板 " + D.templates.items.length]].forEach(function(f){
+    var c = el("span", "fchip" + (f[0] === "all" ? " on" : ""), f[1]);
+    c.dataset.type = f[0];
+    c.onclick = function(){
+      galType = f[0];
+      galFilters.querySelectorAll(".fchip").forEach(function(x){ x.classList.toggle("on", x.dataset.type === galType); });
+      renderGallery();
+    };
+    galFilters.appendChild(c);
+  });
+  function recipeOf(x){
+    var r = x.kind === "case" ? x.item.recipe : x.item.fills;
+    var out = [];
+    Object.keys(r).forEach(function(k){
+      var d = E.KEY2DIM[k] || k;
+      if (E.DIM_KEYS.indexOf(d) === -1) return;
+      var v = r[k];
+      (Array.isArray(v) ? v : [v]).forEach(function(id){ out.push({ dim: d, id: id }); });
+    });
+    return out;
+  }
+  function renderGallery(){
+    var q = $("galQ").value.trim().toLowerCase();
+    var wrap = $("galWrap");
+    wrap.innerHTML = "";
+    var shown = 0;
+    galCards.forEach(function(x){
+      if (galType !== "all" && x.kind !== galType) return;
+      var it = x.item;
+      var hay = (it.id + " " + it.zh + " " + (it.validates || it.desc || "")).toLowerCase();
+      if (q && hay.indexOf(q) === -1) return;
+      shown++;
+      var rec = recipeOf(x);
+      var styleId = null;
+      rec.forEach(function(r){ if (r.dim === "styles") styleId = r.id; });
+      var pl = styleId ? E.paletteOf(styleId) : null;
+      var card = el("div", "gcard");
+      var img = galImgs[it.id];
+      var cands = galleryCands(it.id); // 恒非空：三种扩展名兜底
+      // 图区高度恒定给出；探测确认真的没配图时由 onerror 收回高度（回落无图卡面）
+      var sw = '<div class="gsw" style="height:150px">';
+      sw += '<img src="' + esc(cands[0]) + '" alt="' + esc(it.id) + '" data-fb="' + esc(cands.slice(1).join(",")) + '">';
+      sw += '<span class="gid" data-copy="' + esc(it.id + (img ? "." + (img.split(".").pop() || "png") : ".png")) + '">' + esc(it.id) + "<em>" + (img ? " 改文件名" : ".png") + "</em></span>";
+      if (x.kind === "case") {
+        sw += '<span class="gstat ' + (it.tested ? "ok" : "un") + '">' + (it.tested ? "已实测" : "未实测") + "</span>";
+      }
+      if (pl) {
+        sw += '<span class="gstrips">' + pl.swatches.slice(0, 4).map(function(w){
+          return '<i style="background:' + esc(w.hex) + '"></i>';
+        }).join("") + "</span>";
+      }
+      sw += "</div>";
+      var kws = rec.slice(0, 6).map(function(r){
+        var t = E.byId[r.id];
+        return '<span class="' + (r.dim === "specs" ? "law" : "") + '">' + esc(r.id) + " " + esc(t ? t.zh : "?") + "</span>";
+      }).join("");
+      var body = '<div class="gbody">' +
+        '<div class="gname">' + esc(it.zh) + "<em>" + esc(it.id) + "</em></div>" +
+        '<div class="gkw">' + kws + "</div></div>";
+      var act = '<div class="gact">' +
+        '<button class="mini p" data-act="copy">复制提示词</button>' +
+        '<button class="mini use" data-act="load">合成器改用</button>' +
+        '<button class="mini" data-act="detail">详情</button></div>';
+      card.innerHTML = sw + body + act;
+      // 图片扩展名自适应：清单路径对不上时（换图没同步、或清单压根没这条），
+      // 按 data-fb 里的候选（jpg/png/webp）顺延重试，第一个加载成功的就用；
+      // 全都不存在才是真的没配图——收回图区高度，卡面回落无图外观（合法状态，不吓人）。
+      var imgEl = card.querySelector(".gsw img");
+      if (imgEl) imgEl.onerror = function(){
+        var fb = (this.getAttribute("data-fb") || "").split(",").filter(Boolean);
+        if (fb.length) {
+          this.src = fb.shift();
+          if (fb.length) this.setAttribute("data-fb", fb.join(","));
+          else this.removeAttribute("data-fb");
+        } else {
+          this.classList.add("noimg");
+          var box = this.closest(".gsw");
+          if (box) box.style.height = "";
+        }
+      };
+      // 点图片区域 = 开详情（和「详情」按钮等价，用户直觉就是点图看大图/详情）；
+      // 编号徽章 .gid 的点击归复制，不冒泡成详情
+      var swEl = card.querySelector(".gsw");
+      if (swEl) swEl.onclick = function(ev){
+        if (ev.target && ev.target.closest && ev.target.closest(".gid")) return;
+        openGalDetail(x, rec);
+      };
+      card.querySelector(".gid").onclick = function(){ copyText(this.dataset.copy, "配图文件名已复制：" + this.dataset.copy); };
+      card.querySelector('[data-act="copy"]').onclick = function(){
+        var next = {}; rec.forEach(function(r){ next[r.dim] = r.id; });
+        copyText(E.compose(next).prompt);
+      };
+      card.querySelector('[data-act="load"]').onclick = function(){
+        var next = {}; rec.forEach(function(r){ next[r.dim] = r.id; });
+        loadSel(next);
+        show("synth");
+        toast("已载入 " + it.id);
+      };
+      card.querySelector('[data-act="detail"]').onclick = function(){ openGalDetail(x, rec); };
+      wrap.appendChild(card);
+    });
+    if (!shown) wrap.appendChild(el("div", "empty", "没有匹配的卡片。"));
+  }
+  function openGalDetail(x, rec){
+    var it = x.item;
+    var r = {};
+    rec.forEach(function(p){ r[p.dim] = p.id; });
+    var comp = E.compose(r);
+    var sheet = $("galSheet");
+    var html = '<div class="sh"><b>' + esc(it.id + " " + it.zh) + '</b>' +
+      '<span class="hint">' + (x.kind === "case" ? "验证案例 · " + (it.tested ? "已实测" : "未实测") : "任务模板") + "</span>" +
+      '<span class="sp"></span><button class="btn small" data-x="1">关闭</button></div><div class="sbody">';
+    if (it.validates) html += '<div class="dt-note" style="margin-bottom:10px"><b>验证点：</b>' + esc(it.validates) + "</div>";
+    if (it.desc) html += '<div class="dt-note" style="margin-bottom:10px"><b>用途：</b>' + esc(it.desc) + "</div>";
+    if (it.protect) html += '<div class="dt-note" style="margin-bottom:10px;color:var(--warn);background:var(--warn-bg);border-color:var(--warn)"><b>商品保护规则：</b>' + esc(it.protect) + "</div>";
+    var heroCands = galleryCands(it.id);
+    html += '<img class="galhero" src="' + esc(heroCands[0]) + '" alt="' + esc(it.id) + '" data-fb="' + esc(heroCands.slice(1).join(",")) + '">';
+    html += '<div class="dt-note">配方盘只在「提示词合成器」一页。点「复制提示词」取词面，或「合成器改用」带过去细调十二维。</div>';
+    html += '<div class="btns"><button class="btn pri" data-act="copy">复制提示词</button>' +
+      '<button class="btn" data-act="load">合成器改用</button>' +
+      '<button class="btn" data-act="full">复制完整版</button></div></div>';
+    sheet.innerHTML = html;
+    $("galMask").classList.add("on");
+    var hero = sheet.querySelector(".galhero");
+    if (hero) hero.onerror = function(){
+      // 与画廊卡同一套顺延逻辑：清单路径失效就按扩展名兜底重试
+      var fb = (this.getAttribute("data-fb") || "").split(",").filter(Boolean);
+      if (fb.length) {
+        this.src = fb.shift();
+        if (fb.length) this.setAttribute("data-fb", fb.join(","));
+        else this.removeAttribute("data-fb");
+      } else {
+        this.style.display = "none"; // 三种扩展名都没有，破图不吓人
+      }
+    };
+    sheet.querySelector("[data-x]").onclick = function(){ $("galMask").classList.remove("on"); };
+    sheet.querySelector('[data-act="copy"]').onclick = function(){ copyText(comp.prompt); };
+    sheet.querySelector('[data-act="load"]').onclick = function(){
+      loadSel(r); $("galMask").classList.remove("on"); show("synth"); toast("已载入 " + it.id);
+    };
+    sheet.querySelector('[data-act="full"]').onclick = function(){ copyText(fullVersion(r, product)); };
+  }
+  function imgOf(id){ return galImgs[id] || null; }
+  /* 图片候选路径：清单已知路径优先，再按 jpg/png/webp 兜底——
+   * 用户换图不管换哪种格式、甚至没跑 gallery_sync，页面按顺序试，
+   * 第一个能加载的就用。gallery_sync 从此只是「把已知路径写准」的优化，
+   * 不再是页面能读到图的前提。 */
+  function galleryCands(id){
+    var list = [];
+    var known = (window.GALLERY_IMGS || {})[id];
+    if (known) list.push(known);
+    ["jpg", "png", "webp"].forEach(function(ext){
+      var p = "gallery/" + id + "." + ext;
+      if (list.indexOf(p) < 0) list.push(p);
+    });
+    return list;
+  }
+  $("galMask").onclick = function(e){ if (e.target === this) this.classList.remove("on"); };
+  $("galQ").oninput = renderGallery;
+  $("galBig").onclick = function(){ $("galWrap").classList.add("big"); $("galWrap").classList.remove("dense"); };
+  $("galDense").onclick = function(){ $("galWrap").classList.add("dense"); $("galWrap").classList.remove("big"); };
+  if (galUn.length) {
+    var u = $("galUnclaimed");
+    u.style.display = "block";
+    u.innerHTML = "⚠ 这些文件没认领（文件名主干必须是案例/模板 id，如 CS-01.jpg）：<b>" + esc(galUn.join("、")) + "</b>";
+  }
+  renderGallery();
+
+  /* ============================================================
+   * 框架与体检
+   * ============================================================ */
+  (function renderFramework(){
+    var h = "";
+    // 实时体检
+    h += '<div class="panel"><h2>实时体检 <span class="hint">全部现算，一个数字都不写死</span></h2>' +
+      '<div class="metaline" style="margin-top:0">' +
+      DIMS.map(function(d){ return '<span class="pill">' + esc(ZH[d]) + " " + D[d].items.length + "</span>"; }).join("") +
+      '<span class="pill">模板 ' + D.templates.items.length + '</span>' +
+      '<span class="pill">案例 ' + D.cases.items.length + '</span>' +
+      '<span class="pill">配色 ' + s.palettes + '</span>' +
+      '<span class="pill">冲突 ' + s.conflicts + '</span>' +
+      '<span class="pill">理论组合 ' + s.combos.toLocaleString() + '</span></div>';
+    h += '<div class="note"><b>覆盖缺口（不掩盖）：</b>案例实测 ' + g.testedCases + "/" + D.cases.items.length +
+      "；未被案例或模板引用的条目 " + unusedN + " 条";
+    if (g.unusedByCaseOrTpl.length) {
+      h += "<br>" + g.unusedByCaseOrTpl.map(function(x){
+        return "· " + esc(x.zh) + "：" + esc(x.unused.join(", "));
+      }).join("<br>");
+    }
+    h += "</div></div>";
+    // 十二维表
+    h += '<div class="panel md"><h2>十二个维度与决策归属</h2><table><tr><th>#</th><th>维度</th><th>它决定</th><th>谁来定</th><th>条目</th></tr>' +
+      DIMS.map(function(d, i){
+        return "<tr><td>" + (i + 1) + "</td><td>" + esc(d + " " + ZH[d]) + "</td><td>" + esc(D[d].decides || "") + "</td><td>" + esc(D[d].who || "") + "</td><td>" + D[d].items.length + "</td></tr>";
+      }).join("") + "</table>" +
+      "<h2>组合顺序</h2><pre>① form  定产出类型 ——「这张图是主图还是海报」，一切的根\n" +
+      "├─► ② goal    这张图要促成什么（点击/卖点/信任/紧迫感…）\n" +
+      "├─► ③ spec    平台铁律先钉死尺寸与禁区（Amazon 主图先锁纯白）\n" +
+      "├─► ④ category 产品词入列（附行业视觉规范）\n" +
+      "├─► ⑤ shot    机位（怎么拍）＋ people 人物出镜（谁在画面里）\n" +
+      "├─► ⑥ scene   场景（在哪）＋ material 材质（质感怎么被看见）\n" +
+      "├─► ⑦ style   你的品牌调性 —— 跨图一致才有识别度\n" +
+      "│      └─► ⑧ light  跟着 style\n" +
+      "├─► ⑨ layout  随 form 的信息密度\n" +
+      "└─► ⑩ decor   收尾才加，密度超 3 个就删</pre>" +
+      "<h2>三层架构</h2><ul>" +
+      "<li><b>基础资产库</b>：12 个维度的 " + s.entries + " 条词条，可重复组合的最小模块。</li>" +
+      "<li><b>任务模板库</b>：TP-01~05，模块预组合 + 商品信息槽位 + 商品保护规则 + 检查清单（元层，不进提示词）。</li>" +
+      "<li><b>成品案例库</b>：CS-01~" + String(D.cases.items.length).padStart(2, "0") + "，完整配方 + 验证点 + tested 实测状态（未实测不标已验证）。</li>" +
+      "</ul>" +
+      "<h2>变形算子（合成器工具栏一键触发）</h2><ul>" +
+      Object.keys(E.OPERATORS).map(function(k){ return "<li><b>" + esc(k) + "</b>（" + esc(E.OPERATORS[k].zh) + "）</li>"; }).join("") +
+      "<li><b>换品类保视觉</b>（下拉选择，只换 category 一维）</li></ul>" +
+      "<h2>参考图使用规则</h2><ul>" +
+      "<li><b>商品参考图</b>决定商品本身；<b>风格参考图</b>决定视觉语言；<b>场景参考图</b>决定环境空间。</li>" +
+      "<li><b>构图参考图</b>决定主体布局；<b>文案参考图</b>决定信息层级；<b>模特参考图</b>决定人物外观姿态。</li>" +
+      "<li>多图同用时必须明确各自分工，防止模型把风格图里的商品、文字或品牌错带进目标图。</li>" +
+      "</ul>" +
+      "<h2>已知边界</h2><ul>" +
+      "<li>提示词是视觉观察 + 通用摄影常识（seen），<b>未经模型逐条实测</b>，先跑通一条案例配方再扩展。</li>" +
+      "<li>平台尺寸规则以官方文档为准，平台改版后需人工核对。</li>" +
+      "<li>中文长文案建议后期排版叠加，不要让模型直出长文字。</li>" +
+      "</ul></div>";
+    // 冲突裁决
+    h += '<div class="panel"><h2>冲突裁决规则 <span class="hint">优先级：铁律 &gt; form 逻辑 &gt; 可读性 &gt; 品牌调性</span></h2>' +
+      "<table><tr><th>当选了</th><th>别同时选</th><th>听谁的</th><th>为什么</th></tr>" +
+      D.conflicts.conflicts.map(function(r){
+        return "<tr><td>" + esc(r.when.map(function(id){ return id + " " + (E.byId[id] ? E.byId[id].zh : "?"); }).join("<br>")) + "</td><td>" +
+          esc(r.notWith.map(function(id){ return id + " " + (E.byId[id] ? E.byId[id].zh : "?"); }).join("<br>")) + "</td><td>" +
+          esc(r.verdict) + "</td><td>" + esc(r.why) + "</td></tr>";
+      }).join("") + "</table>" +
+      "<ul style='margin-top:10px;font-size:12.5px;color:var(--ink2);line-height:1.9'>" +
+      D.conflicts.priority.map(function(p){ return "<li>" + esc(p) + "</li>"; }).join("") + "</ul></div>";
+    // 平台规格速查
+    h += '<div class="panel"><h2>平台规格速查 <span class="hint">16 条铁律，note 是硬性禁区</span></h2>' +
+      "<table><tr><th>编号</th><th>平台</th><th>英文词面</th><th>铁律备注</th></tr>" +
+      D.specs.items.map(function(sp){
+        return "<tr><td class='c'>" + esc(sp.id) + "</td><td>" + esc(sp.zh) + "</td><td style='font-size:11px;color:var(--ink2)'>" + esc(sp.prompt) + "</td><td style='color:var(--warn)'>" + esc(sp.note || "—") + "</td></tr>";
+      }).join("") + "</table></div>";
+    $("fwBody").innerHTML = h;
+  })();
+
+  /* ============================================================
+   * 编码工作台
+   * ============================================================ */
+  var desk = { spec: "SP-01", cat: "CT-01", style: "ST-01", mat: "MT-01" };
+  function fillSelect(id, items, labelFn, val){
+    var s = $(id);
+    items.forEach(function(it){
+      var o = document.createElement("option");
+      o.value = it.id; o.textContent = it.id + " " + (labelFn ? labelFn(it) : it.zh);
+      s.appendChild(o);
+    });
+    s.value = val;
+  }
+  fillSelect("dSpec", D.specs.items, null, desk.spec);
+  fillSelect("dCat", D.categories.items, null, desk.cat);
+  fillSelect("dStyle", D.styles.items, null, desk.style);
+  fillSelect("dMat", D.materials.items, null, desk.mat);
+  function renderPlans(){
+    var prod = {
+      name: $("dName").value, selling: $("dSelling").value, audience: $("dAudience").value
+    };
+    var plans = E.batchPlans({ specs: $("dSpec").value, categories: $("dCat").value, styles: $("dStyle").value, materials: $("dMat").value });
+    var box = $("planCards");
+    box.innerHTML = "";
+    plans.forEach(function(p){
+      var form = E.index.forms[p.sel.forms], spec = E.index.specs[p.sel.specs];
+      var card = el("div", "plan");
+      card.innerHTML = '<div class="ph"><b>' + esc(p.zh) + '</b><span class="m">' + esc(p.sel.forms + " · " + p.sel.specs) + "</span>" +
+        '<span class="m">' + esc(form ? form.zh : "") + " · " + esc(spec ? spec.zh : "") + "</span></div>" +
+        '<div class="pp">' + esc(E.composeFull(p.sel, prod).prompt) + "</div>" +
+        '<div class="pw warnbox' + (p.warnings.length ? " show" : "") + '">' + (p.warnings.length ? warnHtml(p.warnings) : "") + "</div>" +
+        '<div class="btns"><button class="btn small" data-act="copy">复制</button>' +
+        '<button class="btn small" data-act="full">复制完整版</button>' +
+        '<button class="btn small" data-act="load">载入到合成器</button></div>';
+      card.querySelector('[data-act="copy"]').onclick = function(){ copyText(E.composeFull(p.sel, prod).prompt); };
+      card.querySelector('[data-act="full"]').onclick = function(){ copyText(fullVersion(p.sel, prod)); };
+      card.querySelector('[data-act="load"]').onclick = function(){
+        DIMS.forEach(function(d){ sel[d] = p.sel[d] || null; });
+        product.name = $("dName").value; product.selling = $("dSelling").value; product.audience = $("dAudience").value;
+        $("sName").value = product.name; syncCustomInputs();
+        refreshAll();
+        show("synth");
+        toast("已载入「" + p.zh + "」");
+      };
+      box.appendChild(card);
+    });
+  }
+  ["dSpec", "dCat", "dStyle", "dMat"].forEach(function(id){ $(id).onchange = renderPlans; });
+  ["dName", "dSelling", "dAudience"].forEach(function(id){ $(id).oninput = renderPlans; });
+  $("cdHint").textContent = "批量出图 + 编号速查 · 商品保护规则常驻";
+  renderPlans();
+
+  // 编号速查
+  var quickIds = ["CS-01", "TP-03", "SP-08", "FO-01", "CT-01", "ST-04"];
+  var quickBox = $("lookupQuick");
+  quickIds.forEach(function(id){
+    var b = el("button", "btn small", id);
+    b.onclick = function(){ $("lookupInput").value = id; doLookup(); };
+    quickBox.appendChild(b);
+  });
+  function doLookup(){
+    var id = $("lookupInput").value.trim().toUpperCase();
+    var out = $("lookupOut");
+    out.innerHTML = "";
+    if (!id) { out.appendChild(el("div", "empty", "输入一个编号，如 CS-01 / TP-03 / SP-08。")); return; }
+    var cs = D.cases.items.filter(function(c){ return c.id === id; })[0];
+    var tp = D.templates.items.filter(function(t){ return t.id === id; })[0];
+    var it = E.byId[id];
+    var html = "";
+    if (cs || tp) {
+      var x = cs || tp;
+      var rec = cs ? cs.recipe : tp.fills;
+      var r = {};
+      Object.keys(rec).forEach(function(k){
+        var d = E.KEY2DIM[k] || k;
+        if (E.DIM_KEYS.indexOf(d) !== -1) { var v = rec[k]; r[d] = Array.isArray(v) ? v[0] : v; }
+      });
+      var comp = E.compose(r);
+      html = '<div class="plan"><div class="ph"><b>' + esc(x.id + " " + x.zh) + "</b>" +
+        '<span class="m">' + (cs ? "验证案例 · " + (x.tested ? "已实测" : "未实测") : "任务模板") + "</span></div>" +
+        (x.validates ? '<div class="dt-note" style="margin-bottom:8px"><b>验证点：</b>' + esc(x.validates) + "</div>" : "") +
+        (x.desc ? '<div class="dt-note" style="margin-bottom:8px"><b>用途：</b>' + esc(x.desc) + "</div>" : "") +
+        (x.protect ? '<div class="dt-note" style="margin-bottom:8px;color:var(--warn);background:var(--warn-bg);border-color:var(--warn)"><b>商品保护规则：</b>' + esc(x.protect) + "</div>" : "") +
+        '<div class="pp">' + esc(comp.prompt) + "</div>" +
+        '<div class="btns"><button class="btn small" data-act="copy">复制提示词</button>' +
+        '<button class="btn small" data-act="load">载入到合成器</button></div></div>';
+      out.innerHTML = html;
+      out.querySelector('[data-act="copy"]').onclick = function(){ copyText(comp.prompt); };
+      out.querySelector('[data-act="load"]').onclick = function(){
+        DIMS.forEach(function(d){ sel[d] = r[d] || null; });
+        refreshAll(); show("synth"); toast("已载入 " + x.id);
+      };
+      return;
+    }
+    if (it) {
+      var dim = E.dimOf(id);
+      html = '<div class="plan"><div class="ph"><b>' + esc(it.id + " " + it.zh) + '</b><span class="m">' + esc(ZH[dim]) + "</span></div>" +
+        '<div class="pp">' + esc(it.prompt) + "</div>" +
+        (it.note ? '<div class="dt-note" style="margin-top:8px"><b>备注：</b>' + esc(it.note) + "</div>" : "") +
+        (it.rules ? '<div class="dt-note" style="margin-top:8px"><b>行业规范：</b>' + esc(it.rules) + "</div>" : "") +
+        (it.aiTrap ? '<div class="dt-note" style="margin-top:8px"><b>AI 陷阱：</b>' + esc(it.aiTrap) + "</div>" : "") +
+        '<div class="btns"><button class="btn small" data-act="copy">复制英文词面</button>' +
+        '<button class="btn small" data-act="add">加入配方</button></div></div>';
+      out.innerHTML = html;
+      out.querySelector('[data-act="copy"]').onclick = function(){ copyText(it.prompt); };
+      out.querySelector('[data-act="add"]').onclick = function(){
+        sel[dim] = it.id; refreshAll(); toast("已加入「" + it.zh + "」", "去合成器", function(){ show("synth"); });
+      };
+      return;
+    }
+    out.appendChild(el("div", "empty", "没找到 " + esc(id) + "。试试 CS-01 / TP-01 / SP-08 / FO-01，或去「全部词条」翻。"));
+  }
+  $("lookupBtn").onclick = doLookup;
+  $("lookupInput").onkeydown = function(e){ if (e.key === "Enter") doLookup(); };
+
+  /* ---------- 初始：默认载入第一个预设，让首屏不空 ---------- */
+  document.querySelector('.pcard[data-spec="SP-01"]').click();
+  window.__ecomReady = true; // 早期挂桩看到这个就不再提示"还在初始化"
+})();
+</script>
+</body>
+</html>
