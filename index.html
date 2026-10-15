@@ -420,6 +420,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       <pre class="out" id="easyOut"></pre>
       <div class="btns" style="margin-top:10px">
         <button class="easy-copy pri" id="easyCopyPrompt">复制提示词</button>
+        <button class="easy-copy pri" id="easyOneKeyGen" title="把当前成品带去「验收闭环」并直接调 API 出图（未配置 API 会先让你填）">🚀 一键出图</button>
         <button class="easy-copy" id="easyCopyFull">复制完整版</button>
       </div>
       <p class="easy-tip" style="margin-top:10px">成品在本页直接出。想细调十二个维度、换负面词 / 母版 / 变更清单，再去「提示词合成器」。</p>
@@ -569,8 +570,9 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       <div class="metaline" id="meta"></div>
       <div class="btns">
         <button class="btn pri" id="btnCopy">复制当前</button>
+        <button class="btn pri" id="btnOneKeyGen" title="把当前词面带去「验收闭环」并直接调 API 出图（未配置 API 会先让你填）">🚀 一键出图</button>
         <button class="btn" id="btnCopyRun" title="视觉指令 + 按目标平台给出的规格参数建议，粘贴到出图工具即可用">复制出图版（带参数）</button>
-        <button class="btn" id="btnToCheck" title="把当前词面带去「验收闭环」页：API 出图 → 质量检测 → 回填案例">去出图验收 →</button>
+        <button class="btn" id="btnToCheck" title="只把当前词面带去「验收闭环」页：API 出图 → 质量检测 → 回填案例">去出图验收 →</button>
         <details class="out-more" id="copyMore" style="width:100%">
           <summary>分享 / 备份 ▾</summary>
           <div class="btns" style="margin-top:8px">
@@ -717,10 +719,10 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
     <section class="easy-right">
       <h2><em>③</em> 怎么用这条闭环</h2>
       <div class="platnote">
-        <b>配方 → 出图 → 验收 → 回填</b> 四步走：<br>
-        ① 在合成器 / 自定义出图调好词面，点「去出图验收」带过来；<br>
-        ② 配好 API 直接出图（或用别处出的图上传）；<br>
-        ③ 本机检测白度 / 占比 / 尺寸——不通过会指出改哪个维度的词条，改完重新出图；<br>
+        <b>配方 → 一键出图 → 自动验收 → 回填</b> 四步走：<br>
+        ① 在合成器 / 自定义出图页选好内容，成品区点「🚀 一键出图」；<br>
+        ② 已配置 API 就直接出图；没配置会展开配置面板，保存后自动接着出；<br>
+        ③ 出图完点「把这张送去检测」——本机检测白度 / 占比 / 尺寸，不通过会指出改哪个维度的词条，改完重出；<br>
         ④ 通过后一键生成案例片段，并入 <code>data/cases.json</code>，画廊立即可见，知识库随使用变厚。
       </div>
       <h2 style="margin-top:18px"><em>④</em> 本机统计 <span class="easy-live">只记录在你浏览器里</span></h2>
@@ -1627,6 +1629,11 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
   $("apiSave").onclick = function(){
     saveCfg({ base: $("apiBase").value.trim(), key: $("apiKey").value.trim(), model: $("apiModel").value.trim() });
     initApiBox(); toast("API 配置已存本机");
+    // 一键出图时未配置：保存后自动接着出
+    if (pendingAutoGen){
+      var c = loadCfg();
+      if (c.base && c.key && c.model){ pendingAutoGen = false; genByApi(); }
+    }
   };
   $("apiClear").onclick = function(){
     saveCfg({}); $("apiBase").value = ""; $("apiKey").value = ""; $("apiModel").value = "";
@@ -1646,7 +1653,8 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
   };
 
   /* ---------- API 出图 ---------- */
-  $("ckGen").onclick = function(){
+  var pendingAutoGen = false;   // 一键出图时 API 未配置：填完保存后自动接着出
+  function genByApi(){
     var prompt = $("ckPrompt").value.trim();
     var cfg = loadCfg(), key = ($("apiKey").value.trim() || cfg.key || ""), model = ($("apiModel").value.trim() || cfg.model || "");
     if (!prompt) { toast("先粘词面，或从合成器点「去出图验收」带过来"); return; }
@@ -1693,7 +1701,8 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       $("ckGenOut").innerHTML = "<div class='warnbox'>⚠ 出图失败：" + esc(hint) + "</div>";
       ckLog("fail", "API 出图失败");
     });
-  };
+  }
+  $("ckGen").onclick = genByApi;
 
   /* ---------- 出图档位直选 + 验收标尺（平台规格直选，覆盖全部 SP 词条） ---------- */
   var ckSizeVal = "1024x1024";
@@ -1924,10 +1933,53 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
     renderCkStats(); toast("本机统计已清空");
   };
   $("btnToCheck").onclick = function(){
-    $("ckPrompt").value = $("out").textContent;
-    window.__checkRecipe = JSON.parse(JSON.stringify(sel || {}));
+    handoffToCheck($("out").textContent, sel, false);
+  };
+  /* 一键出图：带词面+配方+验收标尺切到闭环页，已配置 API 就直接出图 */
+  function selectSpecBySp(sp){
+    if (!sp) return;
+    for (var i = 0; i < CK_SPECS.length; i++){
+      if (CK_SPECS[i].sp === sp){
+        $("ckPlatChips").querySelectorAll(".chip").forEach(function(x){ x.classList.remove("on"); });
+        var chip = document.querySelector('#ckPlatChips .chip[data-spec="' + CK_SPECS[i].id + '"]');
+        if (chip) chip.classList.add("on");
+        ckSpec = CK_SPECS[i];
+        ckSpecNote();
+        // 出图档位跟着规格比例走（能精确匹配才动）
+        if (ckSpec.w){
+          var best = null;
+          document.querySelectorAll("#ckSizeChips .chip").forEach(function(c){
+            var ar = parseFloat(c.getAttribute("data-ar"));
+            if (Math.abs(ar - ckSpec.w / ckSpec.h) / (ckSpec.w / ckSpec.h) <= 0.02){ best = c; }
+          });
+          if (best && !best.classList.contains("on")) best.click();
+        }
+        return;
+      }
+    }
+  }
+  function handoffToCheck(promptText, recipe, autoGen){
+    $("ckPrompt").value = promptText;
+    window.__checkRecipe = JSON.parse(JSON.stringify(recipe || {}));
+    selectSpecBySp(recipe && (recipe.specs || recipe.spec));
     show("check");
-    toast("词面已带过来，配好 API 即可出图");
+    if (!autoGen){ toast("词面已带过来，配好 API 即可出图"); return; }
+    var c = loadCfg();
+    if (c.base && c.key && c.model){
+      genByApi();
+    } else {
+      $("apiBox").open = true;
+      pendingAutoGen = true;
+      toast("词面已带到验收页：先填 API 配置（面板已展开），保存后自动出图");
+    }
+  }
+  $("btnOneKeyGen").onclick = function(){
+    if (!$("out").textContent.trim()) { toast("先在合成器里选几个维度"); return; }
+    handoffToCheck($("out").textContent, sel, true);
+  };
+  $("easyOneKeyGen").onclick = function(){
+    if (!DIMS.some(function(d){ return sel[d]; })) { toast("先选一个高频场景或平台"); return; }
+    handoffToCheck(E.compose(sel, { strength: strength }).prompt, sel, true);
   };
   initApiBox();
   renderCkStats();

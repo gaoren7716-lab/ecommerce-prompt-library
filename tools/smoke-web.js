@@ -233,6 +233,15 @@ click(doc.getElementById("btnToCheck"));
 assert(doc.getElementById("v-check").classList.contains("on"), "「去出图验收」切页成功");
 assert(doc.getElementById("ckPrompt").value.indexOf("pure seamless white background") !== -1, "词面已带到验收页");
 assert(!!doc.defaultView.__checkRecipe && doc.defaultView.__checkRecipe.forms === "FO-01", "配方快照随行（回填用）");
+// 一键出图（2026-10-15）：合成器/自定义出图 → 验收页，未配置 API 时展开面板并提示保存后自动出
+assert(!!doc.getElementById("btnOneKeyGen") && !!doc.getElementById("easyOneKeyGen"), "合成器 / 自定义出图都有「一键出图」入口");
+click(doc.getElementById("btnOneKeyGen"));
+assert(doc.getElementById("v-check").classList.contains("on"), "一键出图切到验收页");
+assert(doc.getElementById("ckPrompt").value.length > 0, "一键出图词面已带入");
+assert(doc.getElementById("apiBox").open === true, "未配置 API 时一键出图自动展开配置面板");
+assert(doc.getElementById("toast").textContent.indexOf("保存后自动出图") !== -1, "未配置时提示保存后自动出图（不静默）");
+navTo("check");
+click(doc.getElementById("ckStatsClear"));
 // 出图档位与验收标尺直选（2026-10-15：下拉改分组 chip，覆盖全部 SP 规格）
 var sizeChips = doc.querySelectorAll("#ckSizeChips .chip");
 assert(sizeChips.length === 3, "出图档位 3 个直选 chip（方/横/竖）");
