@@ -233,6 +233,26 @@ click(doc.getElementById("btnToCheck"));
 assert(doc.getElementById("v-check").classList.contains("on"), "「去出图验收」切页成功");
 assert(doc.getElementById("ckPrompt").value.indexOf("pure seamless white background") !== -1, "词面已带到验收页");
 assert(!!doc.defaultView.__checkRecipe && doc.defaultView.__checkRecipe.forms === "FO-01", "配方快照随行（回填用）");
+// 出图档位与验收标尺直选（2026-10-15：下拉改分组 chip，覆盖全部 SP 规格）
+var sizeChips = doc.querySelectorAll("#ckSizeChips .chip");
+assert(sizeChips.length === 3, "出图档位 3 个直选 chip（方/横/竖）");
+click(sizeChips[2]);
+assert(sizeChips[2].classList.contains("on") && !sizeChips[0].classList.contains("on"), "出图档位点击切换生效");
+click(sizeChips[0]);
+var platChips = doc.querySelectorAll("#ckPlatChips .chip");
+assert(platChips.length === 17, "验收标尺 17 个规格直选 chip（含自由出图）");
+var spMiss = "";
+for (var si = 1; si <= 16; si++){
+  var sid = "SP-" + (si < 10 ? "0" + si : "" + si);
+  if (!doc.querySelector('#ckPlatChips .chip[data-sp="' + sid + '"]')) spMiss += sid + " ";
+}
+assert(spMiss === "", "SP-01…SP-16 规格全部可选（缺：" + (spMiss || "无") + "）");
+click(doc.querySelector('#ckPlatChips .chip[data-sp="SP-08"]'));
+assert(doc.getElementById("ckSpecNote").textContent.indexOf("SP-08") !== -1 &&
+       doc.getElementById("ckSpecNote").textContent.indexOf("白底严审") !== -1, "选 Amazon 规格后标尺说明联动（SP-08 · 白底严审）");
+assert(doc.querySelector("#ckSizeChips .chip.sug") !== null, "方图规格选中后①出图档位出现建议高亮");
+click(doc.querySelector('#ckPlatChips .chip[data-spec="free"]'));
+assert(doc.getElementById("ckSpecNote").textContent.indexOf("自由出图") !== -1, "自由出图规格可切回");
 
 // ---------- 抽卡 ----------
 navTo("gacha");

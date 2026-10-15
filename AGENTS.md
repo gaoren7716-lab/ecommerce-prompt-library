@@ -7,7 +7,7 @@ node tools/build_web.js    # 重建派生 bundle + engine.js（两个都是生�
 node tools/check_fields.js # 字段体检：id 格式/空字段/prompt 禁中文/中英串味/坏字符/行业规范/配色卡校验
 node tools/check_cases.js  # 体检：引用完整性 + 12 维覆盖矩阵 + 模板 fills/protect/checklist 校验
 node tools/smoke.js        # 引擎冒烟（Node 直跑，无 jsdom）：装配顺序/冲突/算子/随机/商品信息/母版/批量/盘点
-NODE_PATH=<jsdom> node tools/smoke-web.js   # 界面冒烟（含 CSS 绊线，覆盖九页，126 项）
+NODE_PATH=<jsdom> node tools/smoke-web.js   # 界面冒烟（含 CSS 绊线，覆盖九页，133 项）
 # 验收闭环页（v-check）：API 配置/出图在 details 折叠内（playwright 测试要先点开 #apiBox summary）；
 # 检测算法与 tools 外的 Node 原型同参数（128 采样、四角+四边 8 块 14px、非白阈值 24）——改一边要同步另一边。
 node tools/inventory.js    # 盘点 + 覆盖缺口（数字现算，README 引用它）

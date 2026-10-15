@@ -137,6 +137,10 @@ summary{font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
 .chip.on{background:var(--ink);color:var(--bg)}
 .chip.sug{background:var(--sug-bg);color:var(--sug);border:1px dashed var(--sug)}
 .chip.sug.on{background:var(--sug);border-style:solid}
+.ckgrp{display:flex;align-items:flex-start;gap:8px;margin-top:7px}
+.ckglab{flex:0 0 62px;font-size:11.5px;line-height:1.9;color:var(--ink3)}
+.shp{display:inline-block;vertical-align:-1px;margin-right:5px;border:1.5px solid currentColor;border-radius:2px}
+.shp.sq{width:9px;height:9px}.shp.hr{width:13px;height:9px}.shp.vt{width:9px;height:13px}
 .dim-info{display:none;margin-top:10px;padding:9px 13px;border-radius:8px;background:var(--panel2);border:1px dashed var(--line);font-size:12.5px;color:var(--ink2);line-height:1.7}
 .dim-info b{color:var(--ink)}
 
@@ -685,13 +689,15 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       </details>
       <div class="ec-row" style="margin-top:10px"><label>词面</label></div>
       <textarea id="ckPrompt" placeholder="粘贴视觉指令，或从合成器 / 自定义出图点「去出图验收」带过来" style="width:100%;min-height:120px;font:12.5px/1.6 var(--mono)"></textarea>
-      <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px">
-        <select id="ckSize" style="width:auto">
-          <option value="1024x1024">1024×1024（方图）</option>
-          <option value="1536x1024">1536×1024（横图）</option>
-          <option value="1024x1536">1024×1536（竖图）</option>
-        </select>
-        <button class="btn pri" id="ckGen">调用 API 出图</button>
+      <div style="margin-top:10px">
+        <div class="ckgrp"><span class="ckglab">出图档位</span>
+          <div class="chips" id="ckSizeChips">
+            <span class="chip on" data-size="1024x1024" data-ar="1"><i class="shp sq"></i>方图 1024×1024</span>
+            <span class="chip" data-size="1536x1024" data-ar="1.5"><i class="shp hr"></i>横图 1536×1024</span>
+            <span class="chip" data-size="1024x1536" data-ar="0.6667"><i class="shp vt"></i>竖图 1024×1536</span>
+          </div>
+        </div>
+        <div class="btns" style="margin-top:8px"><button class="btn pri" id="ckGen">调用 API 出图</button></div>
       </div>
       <div id="ckGenOut" style="margin-top:10px"></div>
 
@@ -701,13 +707,8 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
         <label>图片</label>
         <input type="file" id="ckFile" accept="image/*" style="flex:1">
       </div>
-      <div class="row" style="margin-top:8px">
-        <select id="ckPlat" style="width:auto">
-          <option value="amazon">Amazon 主图（严审：纯白底）</option>
-          <option value="cn">国内平台主图（白底建议）</option>
-          <option value="free">自由出图（仅尺寸提示）</option>
-        </select>
-      </div>
+      <div id="ckPlatChips" style="margin-top:8px"></div>
+      <div class="hintline" id="ckSpecNote" style="margin-top:6px"></div>
       <div id="ckResult" style="margin-top:12px"></div>
       <div id="ckBackfillBox" style="margin-top:12px"></div>
     </section>
@@ -1649,7 +1650,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
     if (!key || !model) { toast("先在「API 配置」里填端点、密钥和模型"); return; }
     var url = apiBaseUrl() || (cfg.base || "");
     if (!url) { toast("先填端点 base"); return; }
-    var payload = { model: model, prompt: prompt, n: 1, size: $("ckSize").value };
+    var payload = { model: model, prompt: prompt, n: 1, size: ckSizeVal };
     if (model.indexOf("gpt-image") !== 0) payload.response_format = "b64_json"; // gpt-image 系不支持该参数且恒回 b64
     ckGenLock(true);
     $("ckGenOut").innerHTML = "<div class='platnote'>请求已发出，等模型回图…</div>";
@@ -1691,10 +1692,90 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
     });
   };
 
+  /* ---------- 出图档位直选 + 验收标尺（平台规格直选，覆盖全部 SP 词条） ---------- */
+  var ckSizeVal = "1024x1024";
+  $("ckSizeChips").querySelectorAll(".chip").forEach(function(c){
+    c.onclick = function(){
+      $("ckSizeChips").querySelectorAll(".chip").forEach(function(x){ x.classList.remove("on"); });
+      c.classList.add("on");
+      ckSizeVal = c.getAttribute("data-size");
+    };
+  });
+  /* 平台像素规格为验收标尺事实，来源与 SP 词条对齐（SP-01…SP-16）；minPx 为官方最低线 */
+  var CK_SPECS = [
+    { id:"free", sp:"",      zh:"自由出图",       w:0,    h:0,    plat:"free" },
+    { id:"tb",   sp:"SP-01", zh:"淘宝/天猫主图",  w:800,  h:800,  plat:"cn" },
+    { id:"pdd",  sp:"SP-02", zh:"拼多多主图",     w:750,  h:750,  plat:"cn" },
+    { id:"jd",   sp:"SP-03", zh:"京东主图",       w:800,  h:800,  plat:"cn" },
+    { id:"wx",   sp:"SP-15", zh:"微信小程序商品图", w:800, h:800,  plat:"cn" },
+    { id:"ama",  sp:"SP-08", zh:"Amazon 主图",    w:2000, h:2000, minPx:1000, plat:"amazon" },
+    { id:"apl",  sp:"SP-09", zh:"Amazon A+/副图", w:970,  h:600,  plat:"free" },
+    { id:"etsy", sp:"SP-10", zh:"Etsy 产品图",    w:2000, h:2000, minPx:1000, plat:"free" },
+    { id:"dy",   sp:"SP-04", zh:"抖音商详图",     w:750,  h:1000, plat:"free" },
+    { id:"dyc",  sp:"SP-05", zh:"抖音短视频封面", w:750,  h:1334, plat:"free" },
+    { id:"xhs",  sp:"SP-06", zh:"小红书笔记图",   w:750,  h:1000, plat:"free" },
+    { id:"ig",   sp:"SP-12", zh:"Instagram Feed", w:1080, h:1080, minPx:540, plat:"free" },
+    { id:"x",    sp:"SP-13", zh:"X 推文图",       w:1200, h:675,  plat:"free" },
+    { id:"fb",   sp:"SP-14", zh:"Facebook 广告图", w:1200, h:628, plat:"free" },
+    { id:"ban",  sp:"SP-11", zh:"独立站 Banner",  w:1920, h:600,  plat:"free" },
+    { id:"long", sp:"SP-07", zh:"详情页长图",     w:750,  h:1500, arTol:0.35, plat:"free" },
+    { id:"site", sp:"SP-16", zh:"独立站详情图",   w:750,  h:1600, arTol:0.35, plat:"free" }
+  ];
+  var CK_GROUPS = [
+    ["通用", 0, 0], ["国内平台", 1, 4], ["海外平台", 5, 7],
+    ["社媒内容", 8, 11], ["广告Banner", 12, 14], ["长图详情", 15, 16]
+  ];
+  var ckSpec = CK_SPECS[0];
+  (function(){
+    var host = $("ckPlatChips");
+    CK_GROUPS.forEach(function(g){
+      var grp = el("div", "ckgrp");
+      grp.appendChild(el("span", "ckglab", g[0]));
+      var chips = el("div", "chips");
+      for (var i = g[1]; i <= g[2]; i++){
+        (function(s){
+          var c = el("span", "chip" + (s === ckSpec ? " on" : ""));
+          c.setAttribute("data-spec", s.id);
+          if (s.sp) c.setAttribute("data-sp", s.sp);
+          c.textContent = s.zh + (s.w ? " " + s.w + "×" + s.h : "");
+          c.onclick = function(){
+            host.querySelectorAll(".chip").forEach(function(x){ x.classList.remove("on"); });
+            c.classList.add("on");
+            ckSpec = s;
+            ckSpecNote();
+          };
+          chips.appendChild(c);
+        })(CK_SPECS[i]);
+      }
+      grp.appendChild(chips);
+      host.appendChild(grp);
+    });
+    ckSpecNote();
+  })();
+  function ckSpecNote(){
+    var bits = ["已选「" + ckSpec.zh + "」" + (ckSpec.w ? "目标 " + ckSpec.w + "×" + ckSpec.h : "不限尺寸")];
+    if (ckSpec.plat === "amazon") bits.push("白底严审");
+    else if (ckSpec.plat === "cn") bits.push("白底建议级");
+    if (ckSpec.sp) bits.push("词条 " + ckSpec.sp);
+    document.querySelectorAll("#ckSizeChips .chip").forEach(function(c){ c.classList.remove("sug"); });
+    if (ckSpec.w){
+      var best = null;
+      document.querySelectorAll("#ckSizeChips .chip").forEach(function(c){
+        var ar = parseFloat(c.getAttribute("data-ar"));
+        if (Math.abs(ar - ckSpec.w / ckSpec.h) / (ckSpec.w / ckSpec.h) <= 0.02){ c.classList.add("sug"); best = c; }
+      });
+      if (best){
+        if (!best.classList.contains("on")) bits.push("①建议档位：" + best.textContent.trim());
+      } else {
+        bits.push("①无精确档位：选相近档出图，再按目标比例裁切");
+      }
+    }
+    $("ckSpecNote").textContent = bits.join(" · ");
+  }
+
   /* ---------- 质量检测（Canvas 本机计算） ---------- */
   var CK_S = 128, CK_CORNER = 14, CK_WHITE_TH = 24;
-  function ckVerdict(avgDev, worstDev, fg, w, h, plat){
-    var minSide = Math.min(w, h);
+  function ckVerdict(avgDev, worstDev, fg, w, h, spec){
     var rows = [], verdict = "pass";
     function row(name, val, ok, level, tip){
       rows.push({ name: name, val: val, ok: ok, level: level, tip: tip || "" });
@@ -1702,22 +1783,40 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       else if (level === "warn" && verdict !== "fail") verdict = "warn";
     }
     var wh = Math.max(0, Math.round((1 - avgDev / 255) * 100));
-    if (plat === "amazon") {
+    if (spec.plat === "amazon") {
       row("背景白度", "均偏 " + Math.round(avgDev) + "（最差角 " + Math.round(worstDev) + "）· 白度分 " + wh,
           avgDev <= 12, avgDev <= 12 ? "pass" : (avgDev <= 40 ? "warn" : "fail"),
           "Amazon 主图要求纯白底 RGB(255,255,255)，来源：Amazon 官方卖家规范");
       row("前景占比", (fg * 100).toFixed(1) + "%", true, fg >= 0.5 ? "pass" : "warn",
           fg >= 0.5 ? "" : "Amazon 建议产品撑满画面（占比 ≥85% 视觉规范）——机位/构图维度换 close-up、满版构图再出");
-    } else if (plat === "cn") {
+    } else if (spec.plat === "cn") {
       row("背景白度", "均偏 " + Math.round(avgDev) + " · 白度分 " + wh,
           avgDev <= 40, avgDev <= 40 ? "pass" : "warn",
           avgDev <= 40 ? "" : "国内平台多数类目建议白底或浅色底（建议级，非硬审）");
     } else {
       row("背景白度", "均偏 " + Math.round(avgDev) + " · 白度分 " + wh, true, "pass", "自由模式仅参考");
     }
-    var need = plat === "amazon" ? 1000 : (plat === "cn" ? 800 : 0);
-    if (need) row("尺寸", w + "×" + h, minSide >= need, minSide >= need ? "pass" : "warn", "建议 ≥" + need + "px");
-    else row("尺寸", w + "×" + h, true, "pass", "");
+    /* 尺寸：有目标规格时按「比例 ± 容差 + 像素下限」双判，均 warn 级不阻断 */
+    if (spec.w && spec.h) {
+      var arT = spec.w / spec.h, arI = w / h;
+      var tol = spec.arTol || 0.02;
+      var arOff = Math.abs(arI - arT) / arT;
+      var need = spec.minPx || Math.min(spec.w, spec.h);
+      var minSide = Math.min(w, h);
+      if (arOff > tol) {
+        row("尺寸", w + "×" + h, false, "warn",
+            "目标 " + spec.w + "×" + spec.h + "，当前比例差 " + Math.round(arOff * 100) + "% —— 回①换出图档位，或后期裁切");
+      } else if (minSide < need) {
+        row("尺寸", w + "×" + h, false, "warn",
+            "比例对了，但短边 " + minSide + "px 低于建议 " + need + "px" +
+            (minSide >= need * 0.6 ? "（可后缩放补足；要更清晰就换更高档位重出）" : "（差距较大，建议换更高档位重出）"));
+      } else {
+        row("尺寸", w + "×" + h, true, "pass",
+            spec.sp ? "对标 " + spec.sp + " " + spec.zh + " 达标" : "");
+      }
+    } else {
+      row("尺寸", w + "×" + h, true, "pass", "自由模式仅参考");
+    }
     return { rows: rows, verdict: verdict };
   }
   function checkImageSrc(src, from){
@@ -1751,12 +1850,12 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       for (var k = 0; k < total; k++){
         if (255 - Math.min(d[k*4], d[k*4+1], d[k*4+2]) > CK_WHITE_TH) fg++;
       }
-      var plat = $("ckPlat").value;
-      var v = ckVerdict(avg, worst, fg / total, img.naturalWidth, img.naturalHeight, plat);
+      var spec = ckSpec, plat = spec.plat;
+      var v = ckVerdict(avg, worst, fg / total, img.naturalWidth, img.naturalHeight, spec);
       var vc = v.verdict === "pass" ? "#2e7d5b" : (v.verdict === "warn" ? "#b3541e" : "#a33");
       var vt = v.verdict === "pass" ? "通过" : (v.verdict === "warn" ? "有警告，建议微调" : "未过");
       var html = "<div class='platnote' style='border-left:4px solid " + vc + "'>" +
-        "<b style='color:" + vc + "'>" + vt + "</b>（" + esc(from || "上传图") + " · " + $("ckPlat").selectedOptions[0].text + "）<br>" +
+        "<b style='color:" + vc + "'>" + vt + "</b>（" + esc(from || "上传图") + " · 验收标尺：" + esc(spec.zh + (spec.w ? " " + spec.w + "×" + spec.h : "")) + "）<br>" +
         v.rows.map(function(r){
           return "· <b>" + r.name + "</b>：" + esc(r.val) + (r.tip ? " —— <span class='hintline'>" + esc(r.tip) + "</span>" : "");
         }).join("<br>") + "</div>";
@@ -1791,7 +1890,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       id: nextId,
       zh: "（起名：品类 + 形态 + 风格，如「3C 耳机白底主图·工业风」）",
       recipe: (window.__checkRecipe && Object.keys(window.__checkRecipe).length) ? window.__checkRecipe : { form: "??", goal: "??", category: "??", style: "??" },
-      validates: "闭环回填自动核验：" + $("ckPlat").selectedOptions[0].text + " · 背景白度均偏 " + Math.round(avgDev) + " · 前景 " + (fg * 100).toFixed(1) + "% · " + w + "×" + h,
+      validates: "闭环回填自动核验：" + ckSpec.zh + (ckSpec.w ? " " + ckSpec.w + "×" + ckSpec.h : "") + " · 背景白度均偏 " + Math.round(avgDev) + " · 前景 " + (fg * 100).toFixed(1) + "% · " + w + "×" + h,
       tested: true,
       note: "V2 闭环回填，入库前补全 zh 与 recipe 占位项"
     };
