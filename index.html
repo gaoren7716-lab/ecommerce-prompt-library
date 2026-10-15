@@ -137,6 +137,7 @@ summary{font-size:12px;color:var(--ink2);cursor:pointer;user-select:none}
 .chip.on{background:var(--ink);color:var(--bg)}
 .chip.sug{background:var(--sug-bg);color:var(--sug);border:1px dashed var(--sug)}
 .chip.sug.on{background:var(--sug);border-style:solid}
+.chip.sm{padding:4px 10px;font-size:12px}
 .ckgrp{display:flex;align-items:flex-start;gap:8px;margin-top:7px}
 .ckglab{flex:0 0 62px;font-size:11.5px;line-height:1.9;color:var(--ink3)}
 .shp{display:inline-block;vertical-align:-1px;margin-right:5px;border:1.5px solid currentColor;border-radius:2px}
@@ -675,7 +676,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       <h2><em>①</em> API 出图 <span class="easy-live">端点与密钥只存本机浏览器</span></h2>
       <details class="ebrow" id="apiBox" style="border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel)">
         <summary style="cursor:pointer;user-select:none"><b>API 配置</b><span class="hint" id="apiState" style="margin-left:8px"></span></summary>
-        <div class="ec-row" style="margin-top:10px"><label>端点</label><input type="text" id="apiBase" placeholder="如 https://api.openai.com 或你的中转 base（含 /v1 也行）"></div>
+        <div class="ec-row" style="margin-top:10px"><label>端点</label><input type="text" id="apiBase" placeholder="https://api.openai.com 或你的中转 base"></div>
         <div class="ec-row"><label>密钥</label><input type="password" id="apiKey" placeholder="sk-…（只存在你的浏览器本机，不上传）"></div>
         <div class="ec-row"><label>模型</label><input type="text" id="apiModel" list="apiModelList" placeholder="如 gpt-image-2 / dall-e-3" style="flex:1">
           <datalist id="apiModelList"><option value="gpt-image-2"></option><option value="dall-e-3"></option></datalist>
@@ -685,16 +686,17 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
           <button class="btn" id="apiTest">测试连接</button>
           <button class="btn" id="apiClear">清除本机密钥</button>
         </div>
-        <p class="hintline">出图走 OpenAI 兼容 <code>images/generations</code> 接口；请求直接从你的浏览器发到你填的端点，本页是纯静态页、没有服务器经手。端点若不允许浏览器直调（CORS），会如实报错。</p>
+        <p class="hintline">出图走 OpenAI 兼容 <code>images/generations</code> 接口，端点含 /v1 或不含都能识别；请求直接从你的浏览器发到你填的端点，本页是纯静态页、没有服务器经手。端点若不允许浏览器直调（CORS），会如实报错。</p>
       </details>
       <div class="ec-row" style="margin-top:10px"><label>词面</label></div>
       <textarea id="ckPrompt" placeholder="粘贴视觉指令，或从合成器 / 自定义出图点「去出图验收」带过来" style="width:100%;min-height:120px;font:12.5px/1.6 var(--mono)"></textarea>
-      <div style="margin-top:10px">
+      <div class="hintline" style="margin-top:6px">填好上方 API 配置后点按钮即出图；没有端点也可以在 ② 上传别处出的图来检测。</div>
+      <div style="margin-top:8px">
         <div class="ckgrp"><span class="ckglab">出图档位</span>
           <div class="chips" id="ckSizeChips">
-            <span class="chip on" data-size="1024x1024" data-ar="1"><i class="shp sq"></i>方图 1024×1024</span>
-            <span class="chip" data-size="1536x1024" data-ar="1.5"><i class="shp hr"></i>横图 1536×1024</span>
-            <span class="chip" data-size="1024x1536" data-ar="0.6667"><i class="shp vt"></i>竖图 1024×1536</span>
+            <span class="chip sm on" data-size="1024x1024" data-ar="1"><i class="shp sq"></i>方 1024×1024</span>
+            <span class="chip sm" data-size="1536x1024" data-ar="1.5"><i class="shp hr"></i>横 1536×1024</span>
+            <span class="chip sm" data-size="1024x1536" data-ar="0.6667"><i class="shp vt"></i>竖 1024×1536</span>
           </div>
         </div>
         <div class="btns" style="margin-top:8px"><button class="btn pri" id="ckGen">调用 API 出图</button></div>
@@ -1619,7 +1621,8 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
     if (c.base) $("apiBase").value = c.base;
     if (c.key) $("apiKey").value = c.key;
     if (c.model) $("apiModel").value = c.model;
-    $("apiState").textContent = c.model ? "已配置：" + c.model : "未配置";
+    $("apiState").textContent = c.model ? "已配置：" + c.model : "未配置——先填下面三项才能出图";
+    $("apiBox").open = !c.model;   // 未配置时自动展开，配置过则折叠
   }
   $("apiSave").onclick = function(){
     saveCfg({ base: $("apiBase").value.trim(), key: $("apiKey").value.trim(), model: $("apiModel").value.trim() });
@@ -1734,7 +1737,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       var chips = el("div", "chips");
       for (var i = g[1]; i <= g[2]; i++){
         (function(s){
-          var c = el("span", "chip" + (s === ckSpec ? " on" : ""));
+          var c = el("span", "chip sm" + (s === ckSpec ? " on" : ""));
           c.setAttribute("data-spec", s.id);
           if (s.sp) c.setAttribute("data-sp", s.sp);
           c.textContent = s.zh + (s.w ? " " + s.w + "×" + s.h : "");
