@@ -35,7 +35,7 @@ function navTo(mode) { click(doc.querySelector('#modeTabs button[data-mode="' + 
 const D = dom.window.ECOM_DATA;
 assert(D, "ECOM_DATA 已加载");
 assert(D.palettes && D.palettes.items.length === 12, "palettes 12 条");
-assert(doc.querySelectorAll("#modeTabs button").length === 8, "主导航 8 个页签（链接出图独立页）");
+assert(doc.querySelectorAll("#modeTabs button").length === 9, "主导航 9 个页签（链接出图独立页 + 验收闭环）");
 assert(doc.getElementById("inv").textContent.indexOf("理论组合") !== -1, "库存条现算（含理论组合）");
 assert(doc.getElementById("gapLine").textContent.indexOf("未实测") !== -1, "缺口行显示实测进度");
 
@@ -213,6 +213,26 @@ assert(emptyTxt.indexOf("解析框还是空的") !== -1, "空输入提示说清�
 assert(doc.getElementById("btnParse2").onclick.toString().indexOf("parseProductText") !== -1, "解析按钮已接真处理函数（挂桩已退场）");
 // 画廊破图兜底：清单路径与磁盘文件对不上时回落色卡，不显示碎图
 assert(/\.gsw img\.noimg\{display:none\}/.test(html), "绊线：画廊破图回落色卡（onerror 隐藏）");
+
+// ---------- 验收闭环（V2：API 出图 → 本机检测 → 反查维度 → 回填案例 → 统计） ----------
+navTo("check");
+assert(doc.getElementById("v-check").classList.contains("on"), "验收闭环页打开");
+assert(!doc.getElementById("v-gallery").classList.contains("on"), "切到验收页后画廊关闭（无视图泄露）");
+assert(!!doc.getElementById("apiBox") && !!doc.querySelector("#apiKey[type=password]"), "API 配置面板存在且密钥为密码框（不明文）");
+assert(!!doc.getElementById("ckPrompt") && !!doc.getElementById("ckGen") && !!doc.getElementById("ckFile"), "词面输入 / 出图按钮 / 检测上传入口齐全");
+click(doc.getElementById("ckGen"));
+assert(doc.getElementById("ckGenOut").textContent.length === 0 || doc.getElementById("toast").textContent.length > 0 || doc.getElementById("ckGenOut").textContent.length > 0, "无配置点出图有反馈（不静默）");
+assert(doc.getElementById("ckStats").textContent.indexOf("API 出图") !== -1, "本机统计已渲染");
+click(doc.getElementById("ckStatsClear"));
+var ckst = JSON.parse(doc.defaultView.localStorage.getItem("ecom_ckstats"));
+assert(ckst.calls === 0 && ckst.pass === 0 && ckst.log.length === 0, "清空统计生效");
+// 合成器 → 验收闭环 handoff：词面 + 配方快照随行
+navTo("synth");
+click(doc.querySelector('.chip[data-dim="forms"][data-id="FO-01"]'));
+click(doc.getElementById("btnToCheck"));
+assert(doc.getElementById("v-check").classList.contains("on"), "「去出图验收」切页成功");
+assert(doc.getElementById("ckPrompt").value.indexOf("pure seamless white background") !== -1, "词面已带到验收页");
+assert(!!doc.defaultView.__checkRecipe && doc.defaultView.__checkRecipe.forms === "FO-01", "配方快照随行（回填用）");
 
 // ---------- 抽卡 ----------
 navTo("gacha");

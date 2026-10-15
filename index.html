@@ -359,6 +359,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
   <button data-mode="synth">提示词合成器</button>
   <button data-mode="gacha">抽卡</button>
   <button data-mode="pairs">风格配色搭配<span class="n" id="nPairs"></span></button>
+  <button data-mode="check">验收闭环</button>
   <button data-mode="framework">框架与体检</button>
   <button data-mode="desk">编码工作台</button>
 </nav>
@@ -564,6 +565,7 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       <div class="btns">
         <button class="btn pri" id="btnCopy">复制当前</button>
         <button class="btn" id="btnCopyRun" title="视觉指令 + 按目标平台给出的规格参数建议，粘贴到出图工具即可用">复制出图版（带参数）</button>
+        <button class="btn" id="btnToCheck" title="把当前词面带去「验收闭环」页：API 出图 → 质量检测 → 回填案例">去出图验收 →</button>
         <details class="out-more" id="copyMore" style="width:100%">
           <summary>分享 / 备份 ▾</summary>
           <div class="btns" style="margin-top:8px">
@@ -659,6 +661,72 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
       </div>
       <div id="lookupOut" style="margin-top:10px"></div>
     </div>
+  </div>
+</main>
+
+<!-- ============ 验收闭环（出图 → 检测 → 反查维度 → 回填案例 → 本机统计） ============ -->
+<main id="v-check" class="view easy-wrap">
+  <div class="easy-grid">
+    <section class="easy-left">
+      <h2><em>①</em> API 出图 <span class="easy-live">端点与密钥只存本机浏览器</span></h2>
+      <details class="ebrow" id="apiBox" style="border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel)">
+        <summary style="cursor:pointer;user-select:none"><b>API 配置</b><span class="hint" id="apiState" style="margin-left:8px"></span></summary>
+        <div class="ec-row" style="margin-top:10px"><label>端点</label><input type="text" id="apiBase" placeholder="如 https://api.openai.com 或你的中转 base（含 /v1 也行）"></div>
+        <div class="ec-row"><label>密钥</label><input type="password" id="apiKey" placeholder="sk-…（只存在你的浏览器本机，不上传）"></div>
+        <div class="ec-row"><label>模型</label><input type="text" id="apiModel" list="apiModelList" placeholder="如 gpt-image-2 / dall-e-3" style="flex:1">
+          <datalist id="apiModelList"><option value="gpt-image-2"></option><option value="dall-e-3"></option></datalist>
+        </div>
+        <div class="btns" style="margin-top:8px">
+          <button class="btn" id="apiSave">保存配置</button>
+          <button class="btn" id="apiTest">测试连接</button>
+          <button class="btn" id="apiClear">清除本机密钥</button>
+        </div>
+        <p class="hintline">出图走 OpenAI 兼容 <code>images/generations</code> 接口；请求直接从你的浏览器发到你填的端点，本页是纯静态页、没有服务器经手。端点若不允许浏览器直调（CORS），会如实报错。</p>
+      </details>
+      <div class="ec-row" style="margin-top:10px"><label>词面</label></div>
+      <textarea id="ckPrompt" placeholder="粘贴视觉指令，或从合成器 / 自定义出图点「去出图验收」带过来" style="width:100%;min-height:120px;font:12.5px/1.6 var(--mono)"></textarea>
+      <div class="row" style="flex-wrap:wrap;gap:8px;margin-top:8px">
+        <select id="ckSize" style="width:auto">
+          <option value="1024x1024">1024×1024（方图）</option>
+          <option value="1536x1024">1536×1024（横图）</option>
+          <option value="1024x1536">1024×1536（竖图）</option>
+        </select>
+        <button class="btn pri" id="ckGen">调用 API 出图</button>
+      </div>
+      <div id="ckGenOut" style="margin-top:10px"></div>
+
+      <h2 style="margin-top:18px"><em>②</em> 质量检测 <span class="easy-live">上传出好的图 · 全程本机计算</span></h2>
+      <p class="easy-tip">检测项：背景白度（四角 + 四边采样）· 前景占比 · 尺寸。不通过会告诉你该改哪个维度的词条。</p>
+      <div class="ec-row">
+        <label>图片</label>
+        <input type="file" id="ckFile" accept="image/*" style="flex:1">
+      </div>
+      <div class="row" style="margin-top:8px">
+        <select id="ckPlat" style="width:auto">
+          <option value="amazon">Amazon 主图（严审：纯白底）</option>
+          <option value="cn">国内平台主图（白底建议）</option>
+          <option value="free">自由出图（仅尺寸提示）</option>
+        </select>
+      </div>
+      <div id="ckResult" style="margin-top:12px"></div>
+      <div id="ckBackfillBox" style="margin-top:12px"></div>
+    </section>
+    <section class="easy-right">
+      <h2><em>③</em> 怎么用这条闭环</h2>
+      <div class="platnote">
+        <b>配方 → 出图 → 验收 → 回填</b> 四步走：<br>
+        ① 在合成器 / 自定义出图调好词面，点「去出图验收」带过来；<br>
+        ② 配好 API 直接出图（或用别处出的图上传）；<br>
+        ③ 本机检测白度 / 占比 / 尺寸——不通过会指出改哪个维度的词条，改完重新出图；<br>
+        ④ 通过后一键生成案例片段，并入 <code>data/cases.json</code>，画廊立即可见，知识库随使用变厚。
+      </div>
+      <h2 style="margin-top:18px"><em>④</em> 本机统计 <span class="easy-live">只记录在你浏览器里</span></h2>
+      <div class="platnote" id="ckStats"></div>
+      <p class="easy-tip" style="margin-top:8px">统计含：API 调用次数、检测通过与未过数、通过率、最近记录。清除浏览器数据即重置。</p>
+      <div class="btns" style="margin-top:10px">
+        <button class="btn" id="ckStatsClear">清空本机统计</button>
+      </div>
+    </section>
   </div>
 </main>
 
@@ -1509,6 +1577,259 @@ td.c{font:11.5px var(--mono);color:var(--accent)}
   $("btnCopyGrabDetail").onclick = function(){ copyText($("grabDetail").textContent); };
   $("grabToSynth").onclick = function(){ show("synth"); };
   $("toSynth").onclick = function(){ show("synth"); };
+
+  /* ============================================================
+   * 验收闭环（V2）：API 出图 → 本机质量检测 → 反查维度 → 案例回填 → 统计
+   * 检测原则：告警非阻断——阈值是起点，用真实数据再调。
+   * ============================================================ */
+  var APICFG_KEY = "ecom_apicfg", CKSTAT_KEY = "ecom_ckstats";
+  function loadCfg(){ try { return JSON.parse(localStorage.getItem(APICFG_KEY)) || {}; } catch(e){ return {}; } }
+  function saveCfg(c){ try { localStorage.setItem(APICFG_KEY, JSON.stringify(c)); } catch(e){} }
+  function loadCk(){ try { return JSON.parse(localStorage.getItem(CKSTAT_KEY)) || { calls:0, pass:0, warn:0, fail:0, log:[] }; } catch(e){ return { calls:0, pass:0, warn:0, fail:0, log:[] }; } }
+  function saveCk(s){ try { localStorage.setItem(CKSTAT_KEY, JSON.stringify(s)); } catch(e){} }
+  function ckLog(res, note){
+    var s = loadCk();
+    s[res] = (s[res] || 0) + 1;
+    s.log = s.log || [];
+    s.log.unshift({ t: new Date().toLocaleTimeString(), res: res, note: (note || "").slice(0, 40) });
+    if (s.log.length > 8) s.log = s.log.slice(0, 8);
+    saveCk(s); renderCkStats();
+  }
+  function renderCkStats(){
+    var s = loadCk(), det = (s.pass || 0) + (s.fail || 0);
+    var rate = det ? Math.round((s.pass || 0) / det * 100) + "%" : "—";
+    $("ckStats").innerHTML =
+      "API 出图 <b>" + (s.calls || 0) + "</b> 次 · 检测通过 <b>" + (s.pass || 0) + "</b> · 警告 <b>" + (s.warn || 0) + "</b> · 未过 <b>" + (s.fail || 0) + "</b> · 一次通过率 <b>" + rate + "</b>" +
+      (s.log && s.log.length ? "<br><span class='hintline'>" + s.log.map(function(x){ return x.t + " " + x.res + " " + x.note; }).join("<br>") + "</span>" : "");
+  }
+
+  /* ---------- API 配置 ---------- */
+  function apiBaseUrl(){
+    var b = ($("apiBase").value || "").trim().replace(/\/+$/, "");
+    if (!b) return "";
+    return /\/v\d+$/.test(b) ? b : b + "/v1";
+  }
+  function ckGenLock(on){
+    $("ckGen").disabled = on;
+    $("ckGen").textContent = on ? "出图中…" : "调用 API 出图";
+  }
+  function initApiBox(){
+    var c = loadCfg();
+    if (c.base) $("apiBase").value = c.base;
+    if (c.key) $("apiKey").value = c.key;
+    if (c.model) $("apiModel").value = c.model;
+    $("apiState").textContent = c.model ? "已配置：" + c.model : "未配置";
+  }
+  $("apiSave").onclick = function(){
+    saveCfg({ base: $("apiBase").value.trim(), key: $("apiKey").value.trim(), model: $("apiModel").value.trim() });
+    initApiBox(); toast("API 配置已存本机");
+  };
+  $("apiClear").onclick = function(){
+    saveCfg({}); $("apiBase").value = ""; $("apiKey").value = ""; $("apiModel").value = "";
+    initApiBox(); toast("已清除本机 API 配置");
+  };
+  $("apiTest").onclick = function(){
+    var base = apiBaseUrl(), key = $("apiKey").value.trim();
+    if (!base) { toast("先填端点 base"); return; }
+    $("apiTest").disabled = true; $("apiTest").textContent = "测试中…";
+    fetch(base + "/models", { headers: key ? { "Authorization": "Bearer " + key } : {} })
+      .then(function(r){ $("apiTest").disabled = false; $("apiTest").textContent = "测试连接"; 
+        if (r.ok) { $("apiState").textContent = "连接正常"; toast("端点连接正常"); }
+        else r.text().then(function(t){ toast("端点返回 " + r.status + "：" + t.slice(0, 80)); });
+      })
+      .catch(function(){ $("apiTest").disabled = false; $("apiTest").textContent = "测试连接";
+        toast("连不上端点：网络不通，或端点不允许浏览器直调（CORS）"); });
+  };
+
+  /* ---------- API 出图 ---------- */
+  $("ckGen").onclick = function(){
+    var prompt = $("ckPrompt").value.trim();
+    var cfg = loadCfg(), key = ($("apiKey").value.trim() || cfg.key || ""), model = ($("apiModel").value.trim() || cfg.model || "");
+    if (!prompt) { toast("先粘词面，或从合成器点「去出图验收」带过来"); return; }
+    if (!key || !model) { toast("先在「API 配置」里填端点、密钥和模型"); return; }
+    var url = apiBaseUrl() || (cfg.base || "");
+    if (!url) { toast("先填端点 base"); return; }
+    var payload = { model: model, prompt: prompt, n: 1, size: $("ckSize").value };
+    if (model.indexOf("gpt-image") !== 0) payload.response_format = "b64_json"; // gpt-image 系不支持该参数且恒回 b64
+    ckGenLock(true);
+    $("ckGenOut").innerHTML = "<div class='platnote'>请求已发出，等模型回图…</div>";
+    var p;
+    try {
+      p = fetch(url + "/images/generations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Authorization": "Bearer " + key },
+        body: JSON.stringify(payload)
+      });
+    } catch(e){ p = Promise.reject(e); } // 无 fetch 的环境（老内核）同步抛，落同一错误提示
+    p.then(function(r){
+      return r.text().then(function(t){
+        if (!r.ok) {
+          var msg = t;
+          try { msg = JSON.parse(t).error.message || t; } catch(e){}
+          throw new Error("HTTP " + r.status + "：" + msg.slice(0, 160));
+        }
+        return JSON.parse(t);
+      });
+    }).then(function(j){
+      var d = j.data && j.data[0];
+      var src = d && d.b64_json ? "data:image/png;base64," + d.b64_json : (d && d.url);
+      if (!src) throw new Error("响应里没有图片（既无 b64_json 也无 url）");
+      ckGenLock(false);
+      var s = loadCk(); s.calls = (s.calls || 0) + 1; saveCk(s); renderCkStats();
+      $("ckGenOut").innerHTML =
+        "<img id='ckImg' src='" + esc(src) + "' alt='API 出图结果' style='max-width:100%;border:1px solid var(--line);border-radius:10px;display:block'>" +
+        "<div class='btns' style='margin-top:8px'><button class='btn pri' id='ckToCheck'>把这张送去检测 ↓</button></div>";
+      $("ckToCheck").onclick = function(){ checkImageSrc(src, "API 出图"); };
+      toast("出图完成，可送检或直接下载");
+    }).catch(function(e){
+      ckGenLock(false);
+      var hint = /Failed to fetch|NetworkError|Load failed/i.test(e.message)
+        ? "连不上端点：网络不通，或该端点不允许浏览器直调（CORS）。可换支持 CORS 的中转端点，或复制词面去别的工具出图后走②上传检测。"
+        : e.message;
+      $("ckGenOut").innerHTML = "<div class='warnbox'>⚠ 出图失败：" + esc(hint) + "</div>";
+      ckLog("fail", "API 出图失败");
+    });
+  };
+
+  /* ---------- 质量检测（Canvas 本机计算） ---------- */
+  var CK_S = 128, CK_CORNER = 14, CK_WHITE_TH = 24;
+  function ckVerdict(avgDev, worstDev, fg, w, h, plat){
+    var minSide = Math.min(w, h);
+    var rows = [], verdict = "pass";
+    function row(name, val, ok, level, tip){
+      rows.push({ name: name, val: val, ok: ok, level: level, tip: tip || "" });
+      if (level === "fail") verdict = "fail";
+      else if (level === "warn" && verdict !== "fail") verdict = "warn";
+    }
+    var wh = Math.max(0, Math.round((1 - avgDev / 255) * 100));
+    if (plat === "amazon") {
+      row("背景白度", "均偏 " + Math.round(avgDev) + "（最差角 " + Math.round(worstDev) + "）· 白度分 " + wh,
+          avgDev <= 12, avgDev <= 12 ? "pass" : (avgDev <= 40 ? "warn" : "fail"),
+          "Amazon 主图要求纯白底 RGB(255,255,255)，来源：Amazon 官方卖家规范");
+      row("前景占比", (fg * 100).toFixed(1) + "%", true, fg >= 0.5 ? "pass" : "warn",
+          fg >= 0.5 ? "" : "Amazon 建议产品撑满画面（占比 ≥85% 视觉规范）——机位/构图维度换 close-up、满版构图再出");
+    } else if (plat === "cn") {
+      row("背景白度", "均偏 " + Math.round(avgDev) + " · 白度分 " + wh,
+          avgDev <= 40, avgDev <= 40 ? "pass" : "warn",
+          avgDev <= 40 ? "" : "国内平台多数类目建议白底或浅色底（建议级，非硬审）");
+    } else {
+      row("背景白度", "均偏 " + Math.round(avgDev) + " · 白度分 " + wh, true, "pass", "自由模式仅参考");
+    }
+    var need = plat === "amazon" ? 1000 : (plat === "cn" ? 800 : 0);
+    if (need) row("尺寸", w + "×" + h, minSide >= need, minSide >= need ? "pass" : "warn", "建议 ≥" + need + "px");
+    else row("尺寸", w + "×" + h, true, "pass", "");
+    return { rows: rows, verdict: verdict };
+  }
+  function checkImageSrc(src, from){
+    var img = new Image();
+    img.onload = function(){
+      var c = document.createElement("canvas");
+      c.width = CK_S; c.height = CK_S;
+      var ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, CK_S, CK_S);
+      var d;
+      try { d = ctx.getImageData(0, 0, CK_S, CK_S).data; }
+      catch(e){
+        $("ckResult").innerHTML = "<div class='warnbox'>⚠ 这张图来自外部链接，浏览器不允许读取像素（跨域限制）。把图下载到本地再上传检测即可。</div>";
+        return;
+      }
+      var spots = [[0,0],[CK_S-CK_CORNER,0],[0,CK_S-CK_CORNER],[CK_S-CK_CORNER,CK_S-CK_CORNER],
+                   [CK_S/2-CK_CORNER/2,0],[CK_S/2-CK_CORNER/2,CK_S-CK_CORNER],[0,CK_S/2-CK_CORNER/2],[CK_S-CK_CORNER,CK_S/2-CK_CORNER/2]];
+      var worst = 0, sum = 0;
+      spots.forEach(function(p){
+        var r=0,g=0,b=0,n=0;
+        for (var y=p[1]; y<p[1]+CK_CORNER; y++) for (var x=p[0]; x<p[0]+CK_CORNER; x++){
+          var i=(y*CK_S+x)*4; r+=d[i]; g+=d[i+1]; b+=d[i+2]; n++;
+        }
+        r/=n; g/=n; b/=n;
+        var dev = 255 - Math.min(r,g,b);
+        if (dev > worst) worst = dev;
+        sum += dev;
+      });
+      var avg = sum / spots.length;
+      var fg = 0, total = CK_S * CK_S;
+      for (var k = 0; k < total; k++){
+        if (255 - Math.min(d[k*4], d[k*4+1], d[k*4+2]) > CK_WHITE_TH) fg++;
+      }
+      var plat = $("ckPlat").value;
+      var v = ckVerdict(avg, worst, fg / total, img.naturalWidth, img.naturalHeight, plat);
+      var vc = v.verdict === "pass" ? "#2e7d5b" : (v.verdict === "warn" ? "#b3541e" : "#a33");
+      var vt = v.verdict === "pass" ? "通过" : (v.verdict === "warn" ? "有警告，建议微调" : "未过");
+      var html = "<div class='platnote' style='border-left:4px solid " + vc + "'>" +
+        "<b style='color:" + vc + "'>" + vt + "</b>（" + esc(from || "上传图") + " · " + $("ckPlat").selectedOptions[0].text + "）<br>" +
+        v.rows.map(function(r){
+          return "· <b>" + r.name + "</b>：" + esc(r.val) + (r.tip ? " —— <span class='hintline'>" + esc(r.tip) + "</span>" : "");
+        }).join("<br>") + "</div>";
+      // 反查维度建议
+      if (v.verdict !== "pass" && (avg > 12 || (plat === "amazon" && fg < 0.5))) {
+        html += "<div class='warnbox' style='margin-top:8px'><b>改哪个维度：</b><br>" +
+          (avg > 12 ? "· 背景/光影 → 换「纯白无缝背景 / 均匀柔光」类词条；负面词加 gradient background、colored backdrop<br>" : "") +
+          (plat === "amazon" && fg < 0.5 ? "· 机位/构图 → 特写、满版构图，让产品占满画面<br>" : "") +
+          "改完回合成器重出词面、重新出图。</div>";
+      }
+      $("ckResult").innerHTML = html;
+      ckLog(v.verdict, (plat === "amazon" ? "Amazon" : plat === "cn" ? "国内" : "自由") + " 白度" + Math.max(0, Math.round((1 - avg / 255) * 100)));
+      // 通过 → 回填入口
+      if (v.verdict === "pass") renderBackfill(avg, fg, img.naturalWidth, img.naturalHeight, plat);
+      else $("ckBackfillBox").innerHTML = "";
+    };
+    img.onerror = function(){ $("ckResult").innerHTML = "<div class='warnbox'>⚠ 图片加载失败，换一张试试。</div>"; };
+    img.src = src;
+  }
+  $("ckFile").onchange = function(){
+    var f = this.files && this.files[0];
+    if (!f) return;
+    var rd = new FileReader();
+    rd.onload = function(){ checkImageSrc(rd.result, f.name); };
+    rd.readAsDataURL(f);
+  };
+
+  /* ---------- 案例回填 ---------- */
+  function renderBackfill(avgDev, fg, w, h, plat){
+    var nextId = "CS-" + String(D.cases.items.length + 1).padStart(2, "0");
+    var frag = {
+      id: nextId,
+      zh: "（起名：品类 + 形态 + 风格，如「3C 耳机白底主图·工业风」）",
+      recipe: (window.__checkRecipe && Object.keys(window.__checkRecipe).length) ? window.__checkRecipe : { form: "??", goal: "??", category: "??", style: "??" },
+      validates: "闭环回填自动核验：" + $("ckPlat").selectedOptions[0].text + " · 背景白度均偏 " + Math.round(avgDev) + " · 前景 " + (fg * 100).toFixed(1) + "% · " + w + "×" + h,
+      tested: true,
+      note: "V2 闭环回填，入库前补全 zh 与 recipe 占位项"
+    };
+    var json = JSON.stringify(frag, null, 2);
+    $("ckBackfillBox").innerHTML =
+      "<details class='ebrow' style='border:1px solid var(--line);border-radius:10px;padding:10px 14px;background:var(--panel)'>" +
+      "<summary style='cursor:pointer'><b>✅ 检测通过 → 回填为案例</b><span class='hint' style='margin-left:8px'>建议编号 " + nextId + "</span></summary>" +
+      "<pre class='out' style='margin-top:8px' id='ckFrag'></pre>" +
+      "<div class='btns' style='margin-top:8px'>" +
+      "<button class='btn' id='ckFragCopy'>复制片段</button>" +
+      "<button class='btn' id='ckFragDl'>下载 .json</button></div>" +
+      "<p class='hintline'>并入 data/cases.json 后跑 <code>node tools/build_web.js</code> + <code>node tools/check_cases.js</code>，画廊即时可见。recipe 从合成器带过来时已自动填好。</p></details>";
+    $("ckFrag").textContent = json;
+    $("ckFragCopy").onclick = function(){ copyText(json, "案例片段已复制"); };
+    $("ckFragDl").onclick = function(){
+      var blob = new Blob([json], { type: "application/json" });
+      var a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "case-fragment-" + nextId + ".json";
+      a.click();
+      toast("片段已下载，并入 data/cases.json 即完成回填");
+    };
+  }
+
+  /* ---------- 统计与清空 ---------- */
+  $("ckStatsClear").onclick = function(){
+    saveCk({ calls:0, pass:0, warn:0, fail:0, log:[] });
+    renderCkStats(); toast("本机统计已清空");
+  };
+  $("btnToCheck").onclick = function(){
+    $("ckPrompt").value = $("out").textContent;
+    window.__checkRecipe = JSON.parse(JSON.stringify(sel || {}));
+    show("check");
+    toast("词面已带过来，配好 API 即可出图");
+  };
+  initApiBox();
+  renderCkStats();
+
 
   /* ============================================================
    * 抽卡
